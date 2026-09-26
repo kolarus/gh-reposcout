@@ -53,10 +53,10 @@ Users also expect accessibility support. None of this is in the brief. Given the
 - Android: `screenOrientation="portrait"`. On large screens Android 16+ ignores it, so **layouts stay flexible**: no fixed widths, and nothing may break in landscape on a tablet (checked on a tablet emulator in Phase 4). We don't use the temporary opt-out, because it disappears at SDK 37.
 - Tablet-optimised layouts are in the improvements backlog.
 
-**Branding: an original mascot, no GitHub marks.**
+**Branding: an original emblem, no GitHub marks.**
 
-- The RepoScout mascot is an original scout character: hat, neckerchief, and a magnifier whose lens shows a git-branch glyph, inside a round badge. No cat or octopus shapes, so it can't be confused with the Octocat.
-- The source SVGs live in `assets/brand/`. `yarn brand:generate` (`scripts/generate-brand-assets.ts`, using sharp) produces:
+- The RepoScout emblem: a scout's campaign hat resting on a magnifying glass whose lens shows a git-branch glyph, inside a round forest-green badge. It was chosen over two character mascots (an owl and a fox) because it stays legible down to 24 px. Nothing resembles the Octocat or GitHub's logo.
+- The source SVG is `assets/brand/reposcout-emblem.svg`. `yarn brand:generate` (`scripts/generate-brand-assets.mts`, using sharp) produces:
   - Android adaptive icons plus a monochrome layer for Android 13+ themed icons
   - the iOS 1024 px icon
   - the bootsplash logo
@@ -65,14 +65,14 @@ Users also expect accessibility support. None of this is in the brief. Given the
 
 **Both:**
 
-- App icon (the mascot, above) and display name "RepoScout".
+- App icon (the emblem, above) and display name "RepoScout".
 - Version numbers come from `package.json` (ADR-0016).
 - No developer menus or debug tooling in release builds.
 
 ## Alternatives considered
 
 - **Handling this "later".** These are cheap now and expensive to retrofit. Store rejections block releases.
-- **A modified GitHub logo or Octocat as the mascot.** Explicitly forbidden by GitHub's brand rules, and a legal risk in a public repository.
+- **A modified GitHub logo or Octocat as the logo or mascot.** Explicitly forbidden by GitHub's brand rules, and a legal risk in a public repository.
 - **Android's temporary orientation opt-out** (`PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY`). It disappears at SDK 37, so relying on it only postpones the work.
 - **A full accessibility pass now.** Valuable, but it doesn't fit the time budget. Deferred with a concrete list so it can be picked up (improvements backlog).
 - **Full WCAG audit tooling.** Out of scope.

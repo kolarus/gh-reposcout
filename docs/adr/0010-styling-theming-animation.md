@@ -18,12 +18,13 @@ The app needs light and dark themes (following the system, with a manual overrid
 
 **Provider:**
 
-- The theme preference (`system | light | dark`) lives in a persisted Zustand store in `shared/theme`.
+- The theme preference (`system | light | dark`) lives in a Zustand store in `shared/theme`, persisted with MMKV once `shared/storage` exists.
 - `ThemeProvider` resolves the preference plus `useColorScheme()` into a `Theme` and puts it in context. The context value is memoised.
 
 **`makeStyles((theme) => StyleSheet.create({...}))`:**
 
 - Returns a `useStyles()` hook that caches styles per theme object, so styles are created once per theme, not on every render.
+- Typed like React Native 0.87's own `StyleSheet.create`, `<S>(styles: S & NamedStyles)`. The intersection keeps literal values such as `'row'` from widening to `string`. RN 0.87's strict API no longer exports `StyleSheet.NamedStyles`, so we define the equivalent from `ViewStyle | TextStyle | ImageStyle`.
 - Styles that don't depend on the theme use a module-level `StyleSheet.create`.
 
 **File convention:**
@@ -50,11 +51,13 @@ The app needs light and dark themes (following the system, with a manual overrid
 - Font-based: an icon is a text glyph, which is cheap to render in list rows.
 - Used only through `shared/ui/Icon`, which fixes size and colour to theme tokens and requires a label for icon-only buttons.
 - The `mark-github` glyph is used only to mean "open on GitHub", never as our own branding (ADR-0023).
-- The font setup (Android font copying, iOS `UIAppFonts`) is checked in Phase 1.
+- Setup, verified in Phase 1 on both platforms: v21 ships only the font, packaged natively (an Android asset and an iOS podspec) with no native module code. iOS registers `Octicons.ttf` under `UIAppFonts` in `Info.plist` (via the package's `rnvi-update-plist` tool); Android needs nothing.
+
+**UI catalog (development only):** `screens/ui-catalog` shows every token and shared component in the current theme, with a theme switch. It's used for design review, and becomes reachable only in development builds once navigation exists.
 
 **Splash screen** (react-native-bootsplash):
 
-- The logo is the mascot inside a round badge, so it works on light and dark backgrounds and fits Android 12+'s circular splash mask.
+- The logo is the RepoScout emblem, a round badge (ADR-0023), so it works on light and dark backgrounds and fits Android 12+'s circular splash mask.
 - The background follows the system appearance: Android `values-night`, and an iOS named colour with a dark variant. We set these up ourselves because bootsplash's dark-mode generation needs a paid licence.
 - Accepted trade-off: the splash follows the _system_ theme. If the user's in-app override differs, colours switch once the app renders. Reading the stored preference natively is in the improvements backlog.
 

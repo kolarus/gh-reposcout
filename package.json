@@ -24,10 +24,11 @@
     "postinstall": "lefthook install"
   },
   "dependencies": {
-    "@react-native/new-app-screen": "0.87.1",
+    "@react-native-vector-icons/octicons": "21.1.4",
     "react": "19.2.3",
     "react-native": "0.87.1",
-    "react-native-safe-area-context": "5.10.0"
+    "react-native-safe-area-context": "5.10.0",
+    "zustand": "5.0.15"
   },
   "devDependencies": {
     "@babel/core": "7.29.7",

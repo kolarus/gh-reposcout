@@ -373,7 +373,8 @@ export default tseslint.config(
     files: TEST_FILES,
     rules: {
       'no-restricted-globals': 'off',
-      'no-restricted-syntax': noRestrictedSyntax('jsxText'),
+      // Tests aren't components: they may use inline copy and build styles.
+      'no-restricted-syntax': noRestrictedSyntax('jsxText', 'styles'),
     },
   },
 

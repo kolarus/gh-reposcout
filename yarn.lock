@@ -2851,6 +2851,48 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-vector-icons/common@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "@react-native-vector-icons/common@npm:13.0.3"
+  dependencies:
+    find-up: "npm:^8.0.0"
+    picocolors: "npm:^1.1.1"
+    plist: "npm:^3.1.0"
+  peerDependencies:
+    "@react-native-vector-icons/get-image": ^13.0.1
+    "@react-native/assets-registry": "*"
+    expo-font: "*"
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    "@react-native-vector-icons/get-image":
+      optional: true
+    "@react-native/assets-registry":
+      optional: true
+    expo-font:
+      optional: true
+  bin:
+    rnvi-update-plist: lib/commonjs/scripts/updatePlist.js
+  checksum: 10c0/fd25f59a64c6b6e294e94b3e5b739a388b014853a29b39bb027570d3cfe944f8eda60304b102697909355351163bb6b8a84a6b3c10c45951c1bd1fdcb90932c4
+  languageName: node
+  linkType: hard
+
+"@react-native-vector-icons/octicons@npm:21.1.4":
+  version: 21.1.4
+  resolution: "@react-native-vector-icons/octicons@npm:21.1.4"
+  dependencies:
+    "@react-native-vector-icons/common": "npm:^13.0.3"
+  peerDependencies:
+    "@expo/config-plugins": ">=10.0.0"
+    react: "*"
+    react-native: "*"
+  peerDependenciesMeta:
+    "@expo/config-plugins":
+      optional: true
+  checksum: 10c0/cdd03b296daf233f048fee72ddc41e0a20d4b2d4b9b3f09e3711717ce0c07ee58a4ba0b07985f2e24089e8c31b74d32b15753a1133b6e08ceccd80bf4daadd4c
+  languageName: node
+  linkType: hard
+
 "@react-native/asset-utils@npm:0.87.1":
   version: 0.87.1
   resolution: "@react-native/asset-utils@npm:0.87.1"
@@ -3040,20 +3082,6 @@ __metadata:
     metro-config: "npm:^0.87.0"
     metro-runtime: "npm:^0.87.0"
   checksum: 10c0/e58da2373ff99dfe5b3e537f27c0ffc3f074671a25e652216ee07bdaf1f61fe447bfe10a48b087e85f7251599d6027a7dd0f5be32c08aa63311d83cf17d4de9d
-  languageName: node
-  linkType: hard
-
-"@react-native/new-app-screen@npm:0.87.1":
-  version: 0.87.1
-  resolution: "@react-native/new-app-screen@npm:0.87.1"
-  peerDependencies:
-    "@types/react": ^19.1.0
-    react: "*"
-    react-native: 0.87.1
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  checksum: 10c0/8b4c8ecfeb5dc10dee8f376252eab62ea78ac6ac4a420d87ad3ec6b24153de3944abae029a782e0fa8bc738a4d22278e853766c6afc22d00930f19f5d667c24d
   languageName: node
   linkType: hard
 
@@ -3659,6 +3687,13 @@ __metadata:
   version: 9.3.2
   resolution: "@vscode/sudo-prompt@npm:9.3.2"
   checksum: 10c0/9cf63f7001f31ada248aefe0d289e8769d82d9eeb12845aef863faf44620cbe620897625af4e160ab1c2a684d88247a0dbaead0d9a9447a5807feb4a4fd47016
+  languageName: node
+  linkType: hard
+
+"@xmldom/xmldom@npm:^0.9.10":
+  version: 0.9.12
+  resolution: "@xmldom/xmldom@npm:0.9.12"
+  checksum: 10c0/0a9ef38e203213717dde8d16c62743c26c37eb4195aeb4f286550a0aec2145c063a6c3633f253c29f75202f922d7c961d1acaad4dd93e5db1ef05c813354d178
   languageName: node
   linkType: hard
 
@@ -5911,6 +5946,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"find-up@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "find-up@npm:8.0.0"
+  dependencies:
+    locate-path: "npm:^8.0.0"
+    unicorn-magic: "npm:^0.3.0"
+  checksum: 10c0/4c6d2cb92f74bd42ec7344c881a46f6455010d3993f8f55b09bb64298c0a13e11e10200147624db8938590890a15ade69c40f0172698388d0999899f0f2a70a5
+  languageName: node
+  linkType: hard
+
 "flat-cache@npm:^4.0.0":
   version: 4.0.1
   resolution: "flat-cache@npm:4.0.1"
@@ -7842,6 +7887,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"locate-path@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "locate-path@npm:8.0.0"
+  dependencies:
+    p-locate: "npm:^6.0.0"
+  checksum: 10c0/4c837878b6d1b8557c5d1c624d11d6721d77f4627c14bd84182c85cbb9ec8fc01b5b5f089e21fab17b30fc5ecc14216a3d31f754dfcc5299f1fe9f4c83482fee
+  languageName: node
+  linkType: hard
+
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -8870,6 +8924,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"p-limit@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "p-limit@npm:4.0.0"
+  dependencies:
+    yocto-queue: "npm:^1.0.0"
+  checksum: 10c0/a56af34a77f8df2ff61ddfb29431044557fcbcb7642d5a3233143ebba805fc7306ac1d448de724352861cb99de934bc9ab74f0d16fe6a5460bdbdf938de875ad
+  languageName: node
+  linkType: hard
+
 "p-locate@npm:^3.0.0":
   version: 3.0.0
   resolution: "p-locate@npm:3.0.0"
@@ -8894,6 +8957,15 @@ __metadata:
   dependencies:
     p-limit: "npm:^3.0.2"
   checksum: 10c0/2290d627ab7903b8b70d11d384fee714b797f6040d9278932754a6860845c4d3190603a0772a663c8cb5a7b21d1b16acb3a6487ebcafa9773094edc3dfe6009a
+  languageName: node
+  linkType: hard
+
+"p-locate@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "p-locate@npm:6.0.0"
+  dependencies:
+    p-limit: "npm:^4.0.0"
+  checksum: 10c0/d72fa2f41adce59c198270aa4d3c832536c87a1806e0f69dffb7c1a7ca998fb053915ca833d90f166a8c082d3859eabfed95f01698a3214c20df6bb8de046312
   languageName: node
   linkType: hard
 
@@ -9041,6 +9113,17 @@ __metadata:
   dependencies:
     find-up: "npm:^3.0.0"
   checksum: 10c0/ecb60e1f8e1f611c0bdf1a0b6a474d6dfb51185567dc6f29cdef37c8d480ecba5362e006606bb290519bbb6f49526c403fabea93c3090c20368d98bb90c999ab
+  languageName: node
+  linkType: hard
+
+"plist@npm:^3.1.0":
+  version: 3.1.1
+  resolution: "plist@npm:3.1.1"
+  dependencies:
+    "@xmldom/xmldom": "npm:^0.9.10"
+    base64-js: "npm:^1.5.1"
+    xmlbuilder: "npm:^15.1.1"
+  checksum: 10c0/af681277c2e541c6aab0ddee57f59459c43beeea1ee7aa2d4218aa39595fb41c068e2d2be3e4abb17e3252eaf2c1b806ecfb1d402fa5a3f4a6e1a7a32c880c9a
   languageName: node
   linkType: hard
 
@@ -9413,10 +9496,10 @@ __metadata:
     "@react-native-community/cli": "npm:20.2.0"
     "@react-native-community/cli-platform-android": "npm:20.2.0"
     "@react-native-community/cli-platform-ios": "npm:20.2.0"
+    "@react-native-vector-icons/octicons": "npm:21.1.4"
     "@react-native/babel-preset": "npm:0.87.1"
     "@react-native/jest-preset": "npm:0.87.1"
     "@react-native/metro-config": "npm:0.87.1"
-    "@react-native/new-app-screen": "npm:0.87.1"
     "@react-native/typescript-config": "npm:0.87.1"
     "@testing-library/react-native": "npm:14.0.1"
     "@types/jest": "npm:29.5.14"
@@ -9448,6 +9531,7 @@ __metadata:
     test-renderer: "npm:1.3.0"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:8.70.1"
+    zustand: "npm:5.0.15"
   languageName: unknown
   linkType: soft
 
@@ -10637,6 +10721,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unicorn-magic@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "unicorn-magic@npm:0.3.0"
+  checksum: 10c0/0a32a997d6c15f1c2a077a15b1c4ca6f268d574cf5b8975e778bb98e6f8db4ef4e86dfcae4e158cd4c7e38fb4dd383b93b13eefddc7f178dea13d3ac8a603271
+  languageName: node
+  linkType: hard
+
 "universalify@npm:^0.1.0":
   version: 0.1.2
   resolution: "universalify@npm:0.1.2"
@@ -11022,6 +11113,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"xmlbuilder@npm:^15.1.1":
+  version: 15.1.1
+  resolution: "xmlbuilder@npm:15.1.1"
+  checksum: 10c0/665266a8916498ff8d82b3d46d3993913477a254b98149ff7cff060d9b7cc0db7cf5a3dae99aed92355254a808c0e2e3ec74ad1b04aa1061bdb8dfbea26c18b8
+  languageName: node
+  linkType: hard
+
 "y18n@npm:^4.0.0":
   version: 4.0.3
   resolution: "y18n@npm:4.0.3"
@@ -11138,6 +11236,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"yocto-queue@npm:^1.0.0":
+  version: 1.2.2
+  resolution: "yocto-queue@npm:1.2.2"
+  checksum: 10c0/36d4793e9cf7060f9da543baf67c55e354f4862c8d3d34de1a1b1d7c382d44171315cc54abf84d8900b8113d742b830108a1434f4898fb244f9b7e8426d4b8f5
+  languageName: node
+  linkType: hard
+
 "zod-validation-error@npm:^3.5.0 || ^4.0.0":
   version: 4.0.2
   resolution: "zod-validation-error@npm:4.0.2"
@@ -11151,5 +11256,26 @@ __metadata:
   version: 4.6.5
   resolution: "zod@npm:4.6.5"
   checksum: 10c0/32eb6c5e98becbe045675b2141c3611451c16ba567f9779231d79af41c4d651ca1c22f154aef7e6c6e77b929f23e43f1154ca05b82e119e922353725d6776af5
+  languageName: node
+  linkType: hard
+
+"zustand@npm:5.0.15":
+  version: 5.0.15
+  resolution: "zustand@npm:5.0.15"
+  peerDependencies:
+    "@types/react": ">=18.0.0"
+    immer: ">=9.0.6"
+    react: ">=18.0.0"
+    use-sync-external-store: ">=1.2.0"
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    immer:
+      optional: true
+    react:
+      optional: true
+    use-sync-external-store:
+      optional: true
+  checksum: 10c0/ed3a883950a8c22d98e8c72cef103af18043ce66b45faf218ad20ccc8ee29716aacfc6b0a3e783b2152ea38b7663f3982bb6bf2b13ce3df692b05276446afa04
   languageName: node
   linkType: hard

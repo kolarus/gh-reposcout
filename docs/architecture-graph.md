@@ -8,12 +8,20 @@ flowchart LR
 
 subgraph 0["src"]
 subgraph 1["app"]
-2["App.styles.ts"]
-3["App.tsx"]
+2["App.tsx"]
 end
-subgraph 4["shared"]
-5["config"]
+subgraph 3["screens"]
+4["ui-catalog"]
+end
+subgraph 5["shared"]
+6["config"]
+7["theme"]
+8["ui"]
 end
 end
-3-->2
+2-->4
+2-->7
+4-->7
+4-->8
+8-->7
 ```

@@ -33,6 +33,7 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
   - the `fetch` global only in `shared/api` (`no-restricted-globals`)
   - `@react-native-vector-icons/*` only in `shared/ui/Icon`
   - no user-facing text literals in JSX outside `shared/i18n` and tests (`no-restricted-syntax` on `JSXText`), so copy goes through `strings.ts` (ADR-0019)
+  - tests are exempt from the styles and JSX-text restrictions (they aren't components)
 
 **Prettier** is the single source of formatting, with `eslint-config-prettier` so the two don't conflict.
 
