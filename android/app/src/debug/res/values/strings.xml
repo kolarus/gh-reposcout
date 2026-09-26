@@ -1,0 +1,4 @@
+<resources>
+    <!-- Debug builds are named differently so they can sit next to the release APK. -->
+    <string name="app_name">RepoScout Dev</string>
+</resources>

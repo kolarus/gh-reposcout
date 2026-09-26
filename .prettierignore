@@ -1,0 +1,8 @@
+android/
+ios/
+vendor/
+coverage/
+internal_docs/
+.yarn/
+yarn.lock
+**/build/

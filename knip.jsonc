@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Unused files, exports and dependencies (ADR-0022).
+  "entry": ["scripts/*.mts"],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.mts", "*.{js,mjs,ts}"],
+  "ignore": [
+    // The version module is read by the About screen from Phase 4; drop this then.
+    "src/shared/config/**",
+  ],
+  "ignoreDependencies": [
+    // Template Babel deps: @babel/runtime helpers are imported by compiled code,
+    // preset-env is part of the React Native template's Babel toolchain.
+    "@babel/runtime",
+    "@babel/preset-env",
+  ],
+}

@@ -1,0 +1,59 @@
+# iOS simulator build (ADR-0016). Slow (~15–25 min), so it runs only when
+# native-relevant files change, nightly, or on demand. No signing needed.
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'Gemfile'
+      - 'Gemfile.lock'
+      - 'react-native.config.js'
+      - '.github/workflows/ios.yml'
+      - '.github/actions/**'
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator-build:
+    name: iOS simulator build
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-js
+      - uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ios/Pods
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock') }}
+      - name: Install pods
+        working-directory: ios
+        run: bundle exec pod install
+      - name: Build for simulator
+        run: >-
+          xcodebuild
+          -workspace ios/RepoScout.xcworkspace
+          -scheme RepoScout
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath ios/build/DerivedData
+          CODE_SIGNING_ALLOWED=NO
+          build

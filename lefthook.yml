@@ -1,0 +1,27 @@
+# Git hooks (ADR-0015). Installed by `yarn install` (postinstall → lefthook install).
+pre-commit:
+  parallel: true
+  jobs:
+    - name: prettier
+      glob: '*.{ts,tsx,mts,js,mjs,cjs,json,md,yml,yaml}'
+      # CLAUDE.md is a symlink to AGENTS.md; Prettier rejects symlinks passed
+      # explicitly, and AGENTS.md itself is formatted anyway.
+      exclude:
+        - CLAUDE.md
+      run: yarn prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    - name: eslint
+      glob: '*.{ts,tsx,mts,js,mjs}'
+      run: yarn eslint --max-warnings=0 {staged_files}
+    - name: typecheck
+      run: yarn typecheck
+
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: yarn commitlint --edit {1}
+
+pre-push:
+  jobs:
+    - name: validate
+      run: yarn validate
