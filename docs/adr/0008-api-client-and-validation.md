@@ -12,12 +12,12 @@ GitHub responses are large, snake_case, and full of nullable fields. TypeScript 
 
 **Client** (`shared/api/github/client.ts`):
 
-- `createGitHubClient({ fetch = globalThis.fetch, baseUrl })`. The fetch function is **injectable**, so tests can pass a fake one and a proxy or auth wrapper can slot in later.
+- `createGitHubClient({ fetch, baseUrl, timeoutMs, now })`. The fetch function is **injectable**, so tests can pass a fake one and a proxy or auth wrapper can slot in later. Without an injected one, `globalThis.fetch` is looked up **on each call**, not captured at creation, so interceptors installed later (MSW in tests, network inspectors in development) still see the requests.
 - A single header-building function sets `Accept: application/vnd.github+json` and `X-GitHub-Api-Version: 2022-11-28`. Authentication would be added here (ADR-0012).
-- Every call takes an `AbortSignal` (supplied by TanStack Query), combined with a timeout. `AbortSignal.any` / `timeout` are used if Hermes supports them; otherwise a small helper.
+- Every call takes an `AbortSignal` (supplied by TanStack Query), linked with a timeout (15 s, `shared/config`) by a small helper rather than `AbortSignal.any` / `AbortSignal.timeout`. The helper also records which one fired: a timeout becomes a `network` error, while a caller's cancellation is rethrown untouched, because it isn't an error (ADR-0018).
 - Every response has its `x-ratelimit-*` / `retry-after` headers parsed into the rate-limit store (ADR-0012).
 - Every failure is turned into our `ApiError` type (ADR-0018).
-- URLs are built with `URL` / `URLSearchParams`, never string concatenation.
+- Query strings are built from a typed record by one helper with `encodeURIComponent`, never by concatenating user input into paths. `URL` / `URLSearchParams` aren't used: React Native ships a simplified `URL` polyfill whose encoding can differ from Node's, where tests run, so devices and tests would disagree.
 
 **Validation:**
 

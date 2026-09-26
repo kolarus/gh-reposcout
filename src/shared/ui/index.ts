@@ -4,6 +4,8 @@ export { Banner } from './Banner';
 export { Button } from './Button';
 export { Chip } from './Chip';
 export { Divider } from './Divider';
+export { ErrorBoundary } from './ErrorBoundary';
+export { ErrorFallback } from './ErrorFallback';
 export { Icon, type IconName } from './Icon';
 export { Skeleton } from './Skeleton';
 export { StateView } from './StateView';

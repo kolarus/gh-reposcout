@@ -3,11 +3,13 @@ import { render, screen } from '@testing-library/react-native';
 import App from './App';
 
 describe('App', () => {
-  it('renders the UI catalog as the placeholder root', async () => {
+  it('starts on the Search tab with Saved and Settings available', async () => {
     await render(<App />);
 
     expect(
-      screen.getByRole('header', { name: 'UI catalog' }),
+      await screen.findByRole('header', { name: 'Search is coming next' }),
     ).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: /Saved/ })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: /Settings/ })).toBeOnTheScreen();
   });
 });

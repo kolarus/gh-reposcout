@@ -12,6 +12,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactNative from 'eslint-plugin-react-native';
 import testingLibrary from 'eslint-plugin-testing-library';
+import tanstackQuery from '@tanstack/eslint-plugin-query';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -90,12 +91,14 @@ const restrictedSyntax = {
     },
   ],
 };
-const noRestrictedSyntax = (...allowed) => [
-  'error',
-  ...Object.entries(restrictedSyntax)
+const noRestrictedSyntax = (...allowed) => {
+  const selectors = Object.entries(restrictedSyntax)
     .filter(([key]) => !allowed.includes(key))
-    .flatMap(([, value]) => value),
-];
+    .flatMap(([, value]) => value);
+  // A severity-only override (['error']) would inherit the earlier block's
+  // selectors in flat config, so an empty list must turn the rule off instead.
+  return selectors.length > 0 ? ['error', ...selectors] : 'off';
+};
 
 /* ADR-0005 layers: app → screens → features → entities → shared. */
 const LAYERS_BELOW = {
@@ -186,6 +189,14 @@ export default tseslint.config(
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      // React Navigation types `useNavigation()` through a global declaration
+      // (`declare global { namespace ReactNavigation { interface RootParamList
+      // extends ... {} } }`): allow exactly that shape, nothing broader.
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
+      '@typescript-eslint/no-empty-object-type': [
+        'error',
+        { allowInterfaces: 'with-single-extends' },
+      ],
       '@typescript-eslint/ban-ts-comment': [
         'error',
         { 'ts-expect-error': 'allow-with-description' },
@@ -229,6 +240,12 @@ export default tseslint.config(
     },
   },
   { files: APP_FILES, ...reactHooks.configs.flat['recommended-latest'] },
+
+  // TanStack Query: exhaustive query keys, stable client, etc. (ADR-0007).
+  ...tanstackQuery.configs['flat/recommended-strict'].map(c => ({
+    ...c,
+    files: APP_FILES,
+  })),
 
   // Imports: cycles + ordering, resolved through tsconfig paths.
   {

@@ -24,10 +24,19 @@
     "postinstall": "lefthook install"
   },
   "dependencies": {
+    "@react-native-community/netinfo": "12.0.1",
     "@react-native-vector-icons/octicons": "21.1.4",
+    "@react-navigation/bottom-tabs": "7.19.2",
+    "@react-navigation/native": "7.4.1",
+    "@react-navigation/native-stack": "7.19.2",
+    "@tanstack/react-query": "5.103.2",
     "react": "19.2.3",
     "react-native": "0.87.1",
+    "react-native-mmkv": "4.3.2",
+    "react-native-nitro-modules": "0.37.1",
     "react-native-safe-area-context": "5.10.0",
+    "react-native-screens": "4.28.0",
+    "zod": "4.6.5",
     "zustand": "5.0.15"
   },
   "devDependencies": {
@@ -45,6 +54,7 @@
     "@react-native/jest-preset": "0.87.1",
     "@react-native/metro-config": "0.87.1",
     "@react-native/typescript-config": "0.87.1",
+    "@tanstack/eslint-plugin-query": "5.103.2",
     "@testing-library/react-native": "14.0.1",
     "@types/jest": "29.5.14",
     "@types/node": "24.13.6",

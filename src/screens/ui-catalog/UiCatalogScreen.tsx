@@ -55,8 +55,7 @@ const noop = () => undefined;
 
 /**
  * Developer-only catalog of tokens and shared components, in the current theme.
- * The app's placeholder root until navigation lands (Phase 1b); afterwards it's
- * reachable only in development builds.
+ * Reachable only in development builds (Settings → UI catalog).
  */
 export function UiCatalogScreen() {
   const theme = useTheme();
@@ -73,17 +72,12 @@ export function UiCatalogScreen() {
       contentContainerStyle={[
         styles.content,
         {
-          paddingTop: insets.top + theme.spacing.lg,
+          paddingTop: theme.spacing.lg,
           paddingBottom: insets.bottom + theme.spacing.xxl,
         },
       ]}
     >
-      <View style={styles.header}>
-        <Text variant="title" accessibilityRole="header">
-          {copy.title}
-        </Text>
-        <Text tone="secondary">{copy.subtitle}</Text>
-      </View>
+      <Text tone="secondary">{copy.subtitle}</Text>
 
       <CatalogSection title={copy.sections.theme}>
         <View style={styles.row}>

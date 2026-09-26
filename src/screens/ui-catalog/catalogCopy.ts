@@ -3,7 +3,6 @@
  * doesn't go through shared/i18n (ADR-0019 covers user-facing copy).
  */
 export const catalogCopy = {
-  title: 'UI catalog',
   subtitle: 'Design tokens and shared components in the current theme.',
   sections: {
     theme: 'Theme',

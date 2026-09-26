@@ -1,29 +1,30 @@
-import { StatusBar } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useEffect, useState } from 'react';
 
-import { UiCatalogScreen } from '@/screens/ui-catalog';
-import { ThemeProvider, useTheme } from '@/shared/theme';
+import { installGlobalErrorHandlers } from '@/shared/monitoring';
+import { useTheme } from '@/shared/theme';
 
-/** Status bar icons follow the active theme, not just the OS setting. */
-function ThemedStatusBar() {
+import { linking } from './navigation/linking';
+import { toNavigationTheme } from './navigation/navigationTheme';
+import { Navigation } from './navigation/RootNavigator';
+import { AppProviders } from './providers/AppProviders';
+import { connectQueryManagers, createQueryClient } from './query/queryClient';
+
+installGlobalErrorHandlers();
+
+function ThemedNavigation() {
   const theme = useTheme();
-  return (
-    <StatusBar
-      barStyle={theme.name === 'dark' ? 'light-content' : 'dark-content'}
-    />
-  );
+  return <Navigation theme={toNavigationTheme(theme)} linking={linking} />;
 }
 
-/**
- * Root component. Until navigation lands (Phase 1b) it shows the UI catalog.
- */
+/** Root component: providers, then navigation. */
 export default function App() {
+  // One client per app instance (not per render); tests get a fresh one each.
+  const [queryClient] = useState(createQueryClient);
+  useEffect(connectQueryManagers, []);
+
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <ThemedStatusBar />
-        <UiCatalogScreen />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <AppProviders queryClient={queryClient}>
+      <ThemedNavigation />
+    </AppProviders>
   );
 }

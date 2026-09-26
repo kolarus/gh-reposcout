@@ -30,7 +30,10 @@ Facts as of 2026-09-26: React Navigation **8.0 is still pre-release**. Its alpha
 - **Deep links:** `reposcout://repo/:owner/:name`, via an Android intent filter and an iOS URL scheme. Params are validated against GitHub's login and repo-name patterns before any request; invalid ones show the not-found state.
   - The linking config sets the tabs as the initial route, so a deep-linked Details screen has a working back button to Search.
   - The splash screen is hidden in `NavigationContainer`'s `onReady`, not in a specific screen. On a deep-link cold start the first screen is Details, not Search.
-- **Lazy screens:** Details and Settings are registered with `getComponent: () => require(...)`, so their code runs on first navigation, not at startup. Search stays eager because it's the first screen.
+- **Lazy screens:** Details, Settings and the dev-only UI catalog are wrapped in `React.lazy(() => import(...))`, so their code runs on first navigation, not at startup. Search stays eager because it's the first screen.
+  - The static API has no `getComponent` (that option exists only in the dynamic API), so `React.lazy` is the lazy-loading mechanism.
+  - Each navigator sets `screenLayout` to wrap every screen in its own error boundary (ADR-0018) and a `Suspense` boundary for the lazy chunk. The fallback is `null`: the module is already in the single bundle, so `import()` only defers running it and resolves almost immediately. A spinner would just flash.
+- **Dev-only routes** (the UI catalog, ADR-0010) use the static API's `if: useIsDevelopment` condition, so they don't exist in release builds, including for deep links.
 - Navigators and linking live in `src/app/navigation/`. Screens are imported from `src/screens/*` (ADR-0005).
 - The navigation theme is derived from our design tokens (ADR-0010).
 
@@ -58,7 +61,7 @@ Negative / accepted costs:
 
 - TypeScript: navigating with the wrong params doesn't compile.
 - The `rn-review` skill flags objects passed as params.
-- Deep-link parsing has unit tests.
+- Deep-link parsing has unit tests: they build the path config from the real navigator with `createPathConfigForStaticNavigation` and resolve URLs with `getStateFromPath`, so a renamed route or path breaks a test.
 - A Maestro flow opens a deep link.
 
 ## References

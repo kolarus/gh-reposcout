@@ -22,6 +22,7 @@ Corepack, which pins the package manager version per project, ships with Node 24
 - iOS pods: the React Native CLI installs them automatically when running `yarn ios` (`automaticPodsInstallation: true` in `react-native.config.js`). Checked in the CLI source: it prefers `bundle exec pod` and runs `bundle install` first, so the pinned CocoaPods from the `Gemfile` is used. `yarn pods` (`bundle exec pod install`) is the manual fallback. Together, `yarn install && yarn ios` works as the brief asks, without a slow `postinstall` on every install.
 
 - **Dependency install scripts:** Yarn 4 doesn't run dependencies' install scripts by default, which is a good supply-chain default. The git hooks are therefore installed by our own root `postinstall` script (`lefthook install`) rather than by lefthook's package script.
+- **Minimum release age:** we keep Yarn's default `npmMinimalAgeGate` of 1440 minutes, so versions published less than a day ago aren't installed and `yarn add` resolves the previous release. Most compromised releases are caught and unpublished within hours, so this is another cheap supply-chain default. A fix that's needed the same day can be installed by lowering the gate for that one install.
 
 ## Alternatives considered
 

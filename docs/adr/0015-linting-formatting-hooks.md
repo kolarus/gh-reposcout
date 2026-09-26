@@ -19,7 +19,8 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
 - `eslint-plugin-boundaries` 7 for the layers (ADR-0005), through its policy-based `dependencies` rule. Other slices are reachable only through their `index.ts` (`fileInternalPath`).
 - `eslint-plugin-import-x` (the flat-config-native fork of `eslint-plugin-import`) with the TypeScript resolver: `no-cycle`, ordering
 - `eslint-plugin-check-file` for file and folder naming
-- `@tanstack/eslint-plugin-query` (added together with TanStack Query)
+- `@tanstack/eslint-plugin-query` `flat/recommended-strict` (stable query keys, no rest-destructuring of query results, and so on)
+- Two typescript-eslint rules take options for React Navigation's global type augmentation (`declare global { namespace ReactNavigation { interface RootParamList extends RootStackParamList {} } }`, ADR-0006): `no-namespace` allows declarations, and `no-empty-object-type` allows an empty interface with a single `extends`.
 - `eslint-plugin-jest` and `eslint-plugin-testing-library` for test files
 - Project rules through `no-restricted-imports` / `no-restricted-syntax`:
   - `FlatList` banned
@@ -34,6 +35,7 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
   - `@react-native-vector-icons/*` only in `shared/ui/Icon`
   - no user-facing text literals in JSX outside `shared/i18n` and tests (`no-restricted-syntax` on `JSXText`), so copy goes through `strings.ts` (ADR-0019)
   - tests are exempt from the styles and JSX-text restrictions (they aren't components)
+  - The restrictions are built by two helpers in `eslint.config.mjs` that take the names of the ones a folder may skip. When nothing is left, a helper returns `'off'` rather than `['error']`: in flat config, a rule set to a bare severity keeps the options of the earlier config, so `['error']` would silently re-apply every restriction.
 
 **Prettier** is the single source of formatting, with `eslint-config-prettier` so the two don't conflict.
 

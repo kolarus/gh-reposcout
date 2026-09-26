@@ -42,6 +42,12 @@ As of 2026-09-26:
 - Every request without a handler fails the test (`onUnhandledRequest: 'error'`), so no test can reach the real network.
 - The fallback (an injected fake `fetch`, ADR-0008) isn't needed, but the client stays injectable.
 
+**Native modules in Jest** (`jest.setup.ts`):
+
+- MMKV v4 returns an in-memory store under Jest by itself (ADR-0011), but still imports Nitro's native bridge when loaded. `react-native-nitro-modules` is stubbed with an object that throws if it's ever called, so an accidental native call fails loudly instead of silently.
+- NetInfo uses the Jest mock shipped in its package.
+- `transformIgnorePatterns` lets Babel transform every `react-native*` and `@react-native*` package plus `@react-navigation` and `@react-native-vector-icons`, since many of them ship untranspiled ES modules. It's a pattern rather than a list of names, so a new React Native library usually needs no Jest change.
+
 **Libraries:** Jest 29 (from the template) with `@react-native/jest-preset`; React Native Testing Library 14, which renders with the new `test-renderer` package (the old `react-test-renderer` is deprecated); `react-native-safe-area-context`'s official Jest mock. The repo scripts' own tests use Node's built-in `node:test` runner (`yarn test:scripts`).
 
 ## Alternatives considered

@@ -16,11 +16,13 @@ module.exports = {
     // MSW's ESM-only runtime deps go through Babel too (see transformIgnorePatterns).
     '^.+\\.mjs$': 'babel-jest',
   },
-  // RN packages plus MSW's ESM-only runtime deps (rettime, until-async, and the
+  // Babel-transform React Native packages (any react-native*, @react-native*,
+  // @react-navigation, @react-native-vector-icons; many ship ES modules) and
+  // MSW's ESM-only runtime deps: rettime, until-async, and the
   // @open-draft/deferred-promise v3 nested inside msw/node_modules, which is why
-  // msw itself must be allowed: the pattern stops at the first node_modules/msw).
+  // msw itself must be allowed (the pattern stops at the first node_modules/msw).
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|msw|@open-draft|rettime|until-async)/)',
+    'node_modules/(?!((jest-)?react-native[^/]*|@react-native[^/]*|@react-navigation|@react-native-vector-icons|msw|@open-draft|rettime|until-async)/)',
   ],
   testPathIgnorePatterns: ['/node_modules/', '/scripts/'],
   collectCoverageFrom: [

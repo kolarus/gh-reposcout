@@ -35,6 +35,7 @@ type ApiError =
 | any other 4xx / 5xx                                                                           | `http`                                                                                                      |
 | anything else                                                                                 | `unexpected`                                                                                                |
 
+- The client throws an `ApiRequestError`: a real `Error` (stack trace, `cause`), because TanStack Query and error boundaries expect thrown errors, carrying the union as its `detail`. It's one wrapper class, not a hierarchy; code narrows on `detail.kind`, and `toApiError(error)` turns anything caught into an `ApiError` (non-API errors become `unexpected`).
 - The UI maps `kind` → copy, icon and action with an exhaustive `switch` plus `assertNever`, rendered by `shared/ui/StateView`.
 - Retry rules by kind are in ADR-0007.
 - Requests we cancelled ourselves are not errors and are never shown.
@@ -42,13 +43,16 @@ type ApiError =
 
 **Error boundaries, in layers:**
 
-1. **Root boundary.** A crash screen with "Try again", which resets the navigation state.
-2. **Per-screen boundary**, applied in the navigator config. One broken screen doesn't take down the tabs.
+1. **Root boundary**, in `app/providers` around the query client and navigation. A crash screen with "Try again"; the retry remounts navigation, which resets its state.
+2. **Per-screen boundary**, applied once through each navigator's `screenLayout` (ADR-0006), so no screen can forget it. One broken screen doesn't take down the tabs.
 3. **Per-section boundary** where one part can fail on its own (the owner card on Details).
 
-The boundary is a small in-house class component (about 40 lines) with a reset function, so no dependency is needed.
+The boundary is a small in-house class component (`shared/ui/ErrorBoundary`, about 40 lines) with a reset function and a replaceable fallback, so no dependency is needed. Caught render errors go to `shared/monitoring`.
 
-**Global handlers:** `ErrorUtils.setGlobalHandler` and unhandled promise rejection tracking report to `shared/monitoring`, so nothing fails silently.
+**Global handlers** (`installGlobalErrorHandlers`, called once at app start):
+
+- `ErrorUtils.setGlobalHandler` reports uncaught errors to `shared/monitoring`, then calls the previous handler, so React Native's own crash handling and LogBox keep working.
+- Unhandled promise rejections are tracked through Hermes' `enablePromiseRejectionTracker`, in release builds only. In development React Native already tracks them for LogBox, and replacing its tracker would hide those warnings. `HermesInternal` is typed as an opaque object, so it's narrowed with a runtime check rather than a cast (ADR-0004).
 
 **Monitoring interface** (`captureException`, `log`): logs to the console in development and does nothing in release for now. It's ready for a Sentry adapter ("with more time"). Schema mismatches are always reported.
 
