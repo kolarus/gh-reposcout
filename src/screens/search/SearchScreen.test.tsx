@@ -37,11 +37,13 @@ const Navigation = createStaticNavigation(
 );
 
 async function renderScreen() {
+  const queryClient = createTestQueryClient();
   await render(
-    <TestProviders queryClient={createTestQueryClient()}>
+    <TestProviders queryClient={queryClient}>
       <Navigation />
     </TestProviders>,
   );
+  return queryClient;
 }
 
 /**
@@ -119,9 +121,9 @@ describe('SearchScreen', () => {
     ).toBeOnTheScreen();
   });
 
-  it('opens a result in Details and remembers the search', async () => {
+  it('opens a result in Details, handing it the result, and remembers the search', async () => {
     serveSearch(3);
-    await renderScreen();
+    const queryClient = await renderScreen();
     await typeQuery('react');
 
     await fireEvent.press(
@@ -130,6 +132,12 @@ describe('SearchScreen', () => {
 
     expect(await screen.findByText('details:owner-2/repo-2')).toBeOnTheScreen();
     expect(useRecentSearches.getState().queries).toEqual(['react']);
+    // Details finds the result in its cache, so it opens without a request
+    // (ADR-0007, ADR-0012; covered end to end in the Details tests).
+    const [cached] = queryClient
+      .getQueryCache()
+      .findAll({ queryKey: ['repo'] });
+    expect(cached?.state.data).toMatchObject({ fullName: 'owner-2/repo-2' });
   });
 
   it('runs a recent search when it is tapped', async () => {

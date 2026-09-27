@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { PixelRatio, Pressable, View } from 'react-native';
 
+import { sizedAvatarUrl } from '@/shared/api';
 import { strings } from '@/shared/i18n';
 import {
   formatCompactNumber,
@@ -12,14 +13,13 @@ import { Avatar, Icon, Text } from '@/shared/ui';
 
 import { LanguageDot } from './LanguageDot';
 import { useStyles } from './RepoCard.styles';
-import { sizedAvatarUrl } from '../lib/avatarUrl';
-import type { RepoSummary } from '../model/types';
+import type { RepoDetails } from '../model/types';
 
 interface RepoCardProps {
-  repo: RepoSummary;
+  repo: RepoDetails;
   /** Current time (epoch ms) for "Updated 3d ago"; passed in so rows stay pure. */
   now: number;
-  onPress: (repo: RepoSummary) => void;
+  onPress: (repo: RepoDetails) => void;
   /** Not pressable, e.g. while the list shows a previous search's results. */
   disabled?: boolean;
   /** Slot for feature UI such as the save toggle (ADR-0005). */

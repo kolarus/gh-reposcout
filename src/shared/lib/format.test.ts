@@ -2,7 +2,9 @@ import {
   formatCompactNumber,
   formatCountdown,
   formatInteger,
+  formatMinutesUntil,
   formatRelativeTime,
+  formatSize,
   runAt,
   secondsUntil,
 } from '@/shared/lib';
@@ -106,5 +108,29 @@ describe('runAt', () => {
     runAt('2026-09-26T11:00:00Z', callback);
     jest.advanceTimersByTime(0);
     expect(callback).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('formatSize', () => {
+  it.each([
+    [0, '0 KB'],
+    [512, '512 KB'],
+    [1023, '1023 KB'],
+    [1024, '1 MB'],
+    [2458, '2.4 MB'],
+    [984_229, '961 MB'],
+    [1_363_149, '1.3 GB'],
+  ])('%d KB → %s', (kilobytes, expected) => {
+    expect(formatSize(kilobytes)).toBe(expected);
+  });
+});
+
+describe('formatMinutesUntil', () => {
+  const now = Date.parse('2026-09-26T12:00:00Z');
+
+  it('rounds up, and never says less than a minute', () => {
+    expect(formatMinutesUntil('2026-09-26T12:12:01Z', now)).toBe('13 minutes');
+    expect(formatMinutesUntil('2026-09-26T12:00:10Z', now)).toBe('1 minute');
+    expect(formatMinutesUntil('2026-09-26T11:00:00Z', now)).toBe('1 minute');
   });
 });

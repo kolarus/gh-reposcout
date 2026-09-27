@@ -17,6 +17,10 @@ export const strings = {
     yearsAgo: (n: number) => `${String(n)}y ago`,
     thousandSuffix: 'k',
     millionSuffix: 'M',
+    kilobytes: 'KB',
+    megabytes: 'MB',
+    gigabytes: 'GB',
+    minutes: (n: number) => (n === 1 ? '1 minute' : `${String(n)} minutes`),
   },
   errors: {
     screenTitle: 'Something went wrong',
@@ -25,6 +29,16 @@ export const strings = {
   },
   offline: {
     banner: "You're offline. Showing results loaded earlier.",
+  },
+  // Failures any GitHub request can have; screen-specific ones live with the screen.
+  api: {
+    networkTitle: "Can't reach GitHub",
+    networkMessage: 'Check your connection and try again.',
+    serverTitle: 'GitHub is having trouble',
+    serverMessage: 'This is usually temporary. Try again in a moment.',
+    unexpectedTitle: 'Something went wrong',
+    unexpectedMessage: 'The request failed unexpectedly. Try again.',
+    tryAgain: 'Try again',
   },
   search: {
     placeholder: 'Search repositories',
@@ -58,19 +72,12 @@ export const strings = {
         'Search needs a connection. Results load once you are back online.',
     },
     errors: {
-      networkTitle: "Can't reach GitHub",
-      networkMessage: 'Check your connection and try again.',
       rateLimitedTitle: 'Search limit reached',
       rateLimitedMessage:
         'GitHub allows 10 searches a minute without signing in. Results load automatically when the limit resets.',
       invalidTitle: "GitHub couldn't run this search",
       invalidMessage:
         'Check the query, e.g. qualifiers such as language:go or stars:>100.',
-      serverTitle: 'GitHub is having trouble',
-      serverMessage: 'This is usually temporary. Try again in a moment.',
-      unexpectedTitle: 'Something went wrong',
-      unexpectedMessage: 'The search failed unexpectedly. Try again.',
-      tryAgain: 'Try again',
     },
     rateLimitBanner: (countdown: string) =>
       `Search limit reached. Resumes in ${countdown}.`,
@@ -94,12 +101,58 @@ export const strings = {
     savedMessage: 'Saved repositories will appear here and work offline.',
     settingsTitle: 'Settings',
     settingsMessage: 'Theme and data settings land in Phase 4.',
-    detailsTitle: (fullName: string) => fullName,
-    detailsMessage: 'Repository details land in Phase 3.',
   },
   repoDetails: {
     invalidTitle: 'Repository not found',
     invalidMessage: "This link doesn't point to a valid GitHub repository.",
+    notFoundTitle: 'Repository not found',
+    notFoundMessage:
+      'It may have been renamed, made private or deleted on GitHub.',
+    loading: 'Loading repository',
+    offlineTitle: "You're offline",
+    offlineMessage: 'This repository loads once you are back online.',
+    rateLimitedTitle: 'GitHub limit reached',
+    rateLimitedMessage: (minutes: string) =>
+      `GitHub allows 60 requests an hour without signing in. This repository loads in ${minutes}.`,
+    rateLimitedNotice: (minutes: string) =>
+      `GitHub's hourly limit is used up. Showing what was loaded earlier; it refreshes in ${minutes}.`,
+    refreshFailed: "Couldn't refresh. Showing what was loaded earlier.",
+    archived: 'This repository is archived and read-only.',
+    homepage: 'Website',
+    openOnGitHub: 'Open on GitHub',
+    share: 'Share',
+    topicsLabel: 'Topics',
+    stats: {
+      title: 'Stats',
+      stars: 'Stars',
+      forks: 'Forks',
+      openIssues: 'Open issues',
+      language: 'Language',
+      license: 'License',
+      defaultBranch: 'Default branch',
+      size: 'Size',
+      created: 'Created',
+      updated: 'Updated',
+      pushed: 'Last push',
+      none: 'None',
+    },
+  },
+  owner: {
+    title: 'Owner',
+    organization: 'Organization',
+    user: 'User',
+    followers: (formatted: string) => `${formatted} followers`,
+    publicRepos: (formatted: string) => `${formatted} public repositories`,
+    loading: 'Loading owner details',
+    pausedMessage: (minutes: string) =>
+      `Owner details are paused to save GitHub's hourly limit for repositories. The limit resets in ${minutes}.`,
+    loadNow: 'Load now',
+    rateLimitedMessage: (minutes: string) =>
+      `GitHub's hourly limit is used up. Owner details load in ${minutes}.`,
+    errorMessage: "Couldn't load owner details.",
+    offlineMessage: 'Owner details load once you are back online.',
+    retry: 'Retry',
+    openProfile: (login: string) => `Open ${login} on GitHub`,
   },
   dev: {
     uiCatalog: 'UI catalog',

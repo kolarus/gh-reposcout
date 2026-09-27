@@ -4,6 +4,8 @@ import { isValidRepoRef } from '@/entities/repo';
 import { strings } from '@/shared/i18n';
 import { StateView } from '@/shared/ui';
 
+import { RepoDetailsBody } from './ui/RepoDetailsBody';
+
 // Route params are a plain object type (React Navigation needs an index-signature-compatible type).
 type RepoDetailsScreenProps = StaticScreenProps<{
   owner: string;
@@ -11,8 +13,8 @@ type RepoDetailsScreenProps = StaticScreenProps<{
 }>;
 
 /**
- * Placeholder until repository details land in Phase 3. Route params carry only
- * the owner and name (ADR-0006), validated before anything is requested.
+ * Repository details. Route params carry only the owner and name (ADR-0006),
+ * validated before anything is requested.
  */
 export function RepoDetailsScreen({ route }: RepoDetailsScreenProps) {
   const { owner, name } = route.params;
@@ -27,11 +29,5 @@ export function RepoDetailsScreen({ route }: RepoDetailsScreenProps) {
     );
   }
 
-  return (
-    <StateView
-      icon="repo"
-      title={strings.placeholders.detailsTitle(`${owner}/${name}`)}
-      message={strings.placeholders.detailsMessage}
-    />
-  );
+  return <RepoDetailsBody repoRef={{ owner, name }} />;
 }

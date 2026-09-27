@@ -1,4 +1,4 @@
-import type { RepoSummary } from '@/entities/repo';
+import type { RepoDetails } from '@/entities/repo';
 
 import { SEARCH_PAGE_SIZE, SEARCH_RESULT_CAP } from './searchParams';
 
@@ -7,12 +7,12 @@ export interface SearchPage {
   totalCount: number;
   /** GitHub timed out part of the search; results may be missing. */
   incompleteResults: boolean;
-  items: RepoSummary[];
+  items: RepoDetails[];
 }
 
 /** All loaded pages as one list. */
 export interface SearchResults {
-  repos: RepoSummary[];
+  repos: RepoDetails[];
   totalCount: number;
   incompleteResults: boolean;
 }
@@ -42,7 +42,7 @@ export function toSearchResults(data: {
   pages: readonly SearchPage[];
 }): SearchResults {
   const seen = new Set<number>();
-  const repos: RepoSummary[] = [];
+  const repos: RepoDetails[] = [];
   for (const page of data.pages) {
     for (const repo of page.items) {
       if (seen.has(repo.id)) continue;

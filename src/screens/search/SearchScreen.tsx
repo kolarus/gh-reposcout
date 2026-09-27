@@ -1,8 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { RepoCardSkeleton, type RepoSummary } from '@/entities/repo';
+import {
+  RepoCardSkeleton,
+  seedRepoDetail,
+  type RepoDetails,
+} from '@/entities/repo';
 import {
   RateLimitBanner,
   SearchErrorState,
@@ -29,6 +34,7 @@ const skeletonKeys = Array.from({ length: SKELETON_ROWS }, (_, i) => i);
  */
 export function SearchScreen() {
   const navigation = useNavigation();
+  const queryClient = useQueryClient();
   const styles = useStyles();
   const recent = useRecentSearches(state => state.queries);
   const addRecent = useRecentSearches(state => state.add);
@@ -45,9 +51,12 @@ export function SearchScreen() {
     search.submit(query);
   };
 
-  const openRepo = (repo: RepoSummary) => {
+  const openRepo = (repo: RepoDetails) => {
     // Opening a result is the signal that the query was worth remembering.
     if (search.params !== undefined) addRecent(search.params.query);
+    // The result already holds everything Details shows: no request needed
+    // while it's fresh (ADR-0007, ADR-0012).
+    seedRepoDetail(queryClient, repo, search.dataUpdatedAt);
     navigation.navigate('RepoDetails', {
       owner: repo.owner.login,
       name: repo.name,

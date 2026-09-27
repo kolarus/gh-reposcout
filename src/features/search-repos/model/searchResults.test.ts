@@ -1,4 +1,5 @@
-import type { RepoSummary } from '@/entities/repo';
+import { repoSchema, toRepoDetails, type RepoDetails } from '@/entities/repo';
+import { buildRepoDto } from '@/test/github';
 
 import {
   getNextSearchPage,
@@ -7,16 +8,9 @@ import {
   type SearchPage,
 } from './searchResults';
 
-const repo = (id: number): RepoSummary => ({
-  id,
-  owner: { login: 'o', avatarUrl: 'https://a.test/o' },
-  name: `r${String(id)}`,
-  fullName: `o/r${String(id)}`,
-  description: undefined,
-  stars: 0,
-  language: undefined,
-  updatedAt: '2026-01-01T00:00:00Z',
-});
+// A real repo record (from the captured search response) with a unique id.
+const repo = (id: number): RepoDetails =>
+  toRepoDetails(repoSchema.parse(buildRepoDto(id)));
 
 const page = (
   firstId: number,

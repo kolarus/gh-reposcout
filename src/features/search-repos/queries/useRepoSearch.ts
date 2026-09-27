@@ -28,6 +28,8 @@ export interface RepoSearch {
    * more" or pull-to-refresh, which have their own spinners.
    */
   isPending: boolean;
+  /** When the results on screen were fetched (epoch ms), for seeding Details (ADR-0007). */
+  dataUpdatedAt: number;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   /** A failed "load more"; the loaded results stay on screen. */
@@ -111,6 +113,7 @@ export function useRepoSearch(text: string, sort: SearchSort): RepoSearch {
       isSettling ||
       view.kind === 'loading' ||
       (view.kind === 'results' && view.isStale),
+    dataUpdatedAt: query.dataUpdatedAt,
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,
     nextPageError: query.isFetchNextPageError ? error : undefined,

@@ -30,6 +30,7 @@ GitHub responses are large, snake_case, and full of nullable fields. TypeScript 
 - snake_case → camelCase; `null` → `undefined` or an explicit variant.
 - **Dates stay ISO-8601 strings** in domain types, because they must survive JSON persistence (ADR-0011, ADR-0020). They're formatted only in the view layer (ADR-0019).
 - Avatar URLs are kept as GitHub returns them. The UI asks for the size it draws (`sizedAvatarUrl`, ADR-0009), because a list row and the Details hero need different sizes and pixel ratios are a display concern.
+- **User-supplied links** (a repo's homepage, a profile's blog) pass through `toSafeHttpsUrl` in the mapper: only `https:` survives into domain types, so the UI can open any link it's given. A bare domain gets `https://`.
 - **API response types never leave `api/` and `model/`.** Components see only domain types.
 
 **Query input:**

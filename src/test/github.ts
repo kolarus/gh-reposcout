@@ -1,16 +1,27 @@
 import { appConfig } from '@/shared/config';
 
+import repositoryFixture from './fixtures/repository.json';
 import searchFixture from './fixtures/search-repositories.json';
+import userFixture from './fixtures/user.json';
 
 /**
- * GitHub test data built from a real captured response
- * (`fixtures/search-repositories.json`, `GET /search/repositories?q=react
- * native`), so fakes keep GitHub's real shape (ADR-0013).
+ * GitHub test data built from real captured responses, so fakes keep GitHub's
+ * real shape (ADR-0013):
+ * - `fixtures/search-repositories.json`: `GET /search/repositories?q=react native`
+ * - `fixtures/repository.json`: `GET /repos/react/react-native`
+ * - `fixtures/user.json`: `GET /users/react`
  */
-export const SEARCH_URL = `${appConfig.github.apiUrl}/search/repositories`;
+const API = appConfig.github.apiUrl;
+export const SEARCH_URL = `${API}/search/repositories`;
+/** MSW path pattern for `GET /repos/{owner}/{name}`. */
+export const REPO_URL = `${API}/repos/:owner/:name`;
+/** MSW path pattern for `GET /users/{login}`. */
+export const USER_URL = `${API}/users/:login`;
 
-/** The captured search response, untouched: for contract tests. */
+/** The captured responses, untouched: for contract tests. */
 export const capturedSearchResponse: unknown = searchFixture;
+export const capturedRepository: unknown = repositoryFixture;
+export const capturedUser: unknown = userFixture;
 
 const baseItem = (() => {
   const [first] = searchFixture.items;
@@ -54,5 +65,18 @@ export function buildSearchPage({
     total_count: total,
     incomplete_results: incomplete,
     items: Array.from({ length: count }, (_, i) => buildRepoDto(first + i)),
+  };
+}
+
+/** A profile as `GET /users/{login}` returns it. */
+export function buildUserDto(
+  login: string,
+  overrides: Readonly<Record<string, unknown>> = {},
+): Record<string, unknown> {
+  return {
+    ...userFixture,
+    login,
+    html_url: `https://github.com/${login}`,
+    ...overrides,
   };
 }

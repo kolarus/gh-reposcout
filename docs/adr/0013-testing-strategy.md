@@ -60,7 +60,7 @@ As of 2026-09-26:
 **Helpers** (`src/test/`):
 
 - `TestProviders` / `createWrapper(queryClient)`: theme and a query client with retries off (the retry policy has its own tests), for screens and hooks.
-- `github.ts`: `buildRepoDto(id, overrides)` and `buildSearchPage({ page, total })`, built from a real captured search response (`fixtures/search-repositories.json`), which the contract tests also parse as is.
+- `github.ts`: `buildRepoDto(id, overrides)`, `buildSearchPage({ page, total })` and `buildUserDto(login, overrides)`, built from real captured responses (`fixtures/search-repositories.json`, `repository.json`, `user.json`), which the contract tests also parse as is. MSW path patterns `SEARCH_URL`, `REPO_URL`, `USER_URL`.
 - `gate.ts`: `createGate()` holds a fake response until the test opens it (see "No sleeping in tests").
 - Timer-dependent behaviour (debounce, countdown, rate-limit resume, staleness) uses Jest's fake timers; MSW works with them. Screen tests run on fake timers throughout, and flush what's still scheduled inside `act()` before unmounting, so no update lands after a test.
 

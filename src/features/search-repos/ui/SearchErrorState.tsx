@@ -12,14 +12,15 @@ interface ErrorContent {
 }
 
 const copy = strings.search.errors;
+const api = strings.api;
 
 function errorContent(error: ApiError): ErrorContent {
   switch (error.kind) {
     case 'network':
       return {
         icon: 'cloud-offline',
-        title: copy.networkTitle,
-        message: copy.networkMessage,
+        title: api.networkTitle,
+        message: api.networkMessage,
         canRetry: true,
       };
     case 'rate-limited':
@@ -40,15 +41,15 @@ function errorContent(error: ApiError): ErrorContent {
     case 'http':
       return {
         icon: 'server',
-        title: copy.serverTitle,
-        message: copy.serverMessage,
+        title: api.serverTitle,
+        message: api.serverMessage,
         canRetry: true,
       };
     case 'unexpected':
       return {
         icon: 'alert',
-        title: copy.unexpectedTitle,
-        message: copy.unexpectedMessage,
+        title: api.unexpectedTitle,
+        message: api.unexpectedMessage,
         canRetry: true,
       };
     default:
@@ -71,7 +72,7 @@ export function SearchErrorState({
       title={title}
       message={message}
       {...(canRetry
-        ? { action: { label: copy.tryAgain, onPress: onRetry } }
+        ? { action: { label: api.tryAgain, onPress: onRetry } }
         : {})}
     />
   );

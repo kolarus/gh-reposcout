@@ -23,7 +23,8 @@ Facts as of 2026-09-26:
 
 - `formatCompactNumber(n)` → `999`, `1.2k`, `12.3k`, `1.2M`.
 - `formatRelativeTime(isoDate, now)` → `just now`, `5m ago`, `3h ago`, `3d ago`, `2mo ago`, `1y ago`. The `now` argument keeps it testable.
-- `secondsUntil(isoDate, now)` and `formatCountdown(seconds)` → `1:05`, for the rate-limit countdown.
+- `secondsUntil(isoDate, now)` and `formatCountdown(seconds)` → `1:05`, for the rate-limit countdown; `formatMinutesUntil(isoDate, now)` → "13 minutes" for the hourly limit.
+- `formatSize(kilobytes)` → `512 KB`, `2.4 MB`, `1.3 GB` (GitHub reports repo size in KB).
 - Unit labels come from `strings.ts`, so localising later replaces the implementation, not the callers.
 - **The only `Intl` use:** one module-level `Intl.NumberFormat` for grouping the header count, created once and never per render or per row.
 - No date library: domain dates are ISO strings (ADR-0008), and the arithmetic is trivial.

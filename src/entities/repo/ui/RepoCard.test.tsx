@@ -4,18 +4,33 @@ import { PixelRatio } from 'react-native';
 import { ThemeProvider } from '@/shared/theme';
 
 import { RepoCard } from './RepoCard';
-import type { RepoSummary } from '../model/types';
+import type { RepoDetails } from '../model/types';
 
 const NOW = Date.parse('2026-09-26T12:00:00Z');
-const repo: RepoSummary = {
+const repo: RepoDetails = {
   id: 1,
-  owner: { login: 'facebook', avatarUrl: 'https://a.test/u/69631?v=4' },
+  owner: {
+    login: 'facebook',
+    avatarUrl: 'https://a.test/u/69631?v=4',
+    kind: 'organization',
+  },
   name: 'react-native',
   fullName: 'facebook/react-native',
   description: 'A framework for building native applications using React',
+  htmlUrl: 'https://github.com/facebook/react-native',
+  homepageUrl: undefined,
   stars: 125_400,
+  forks: 25_000,
+  openIssues: 1100,
   language: 'C++',
+  license: 'MIT',
+  topics: [],
+  defaultBranch: 'main',
+  sizeKb: 1000,
+  archived: false,
+  createdAt: '2015-01-09T18:10:16Z',
   updatedAt: '2026-09-23T12:00:00Z',
+  pushedAt: '2026-09-23T11:00:00Z',
 };
 
 describe('RepoCard', () => {

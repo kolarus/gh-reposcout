@@ -1,17 +1,13 @@
+import { repoSchema, toRepoDetails } from '@/entities/repo';
+import { buildRepoDto } from '@/test/github';
+
 import type { SearchResults } from './searchResults';
 import { resolveSearchView } from './searchView';
 
 const results = (count: number): SearchResults => ({
-  repos: Array.from({ length: count }, (_, i) => ({
-    id: i,
-    owner: { login: 'o', avatarUrl: 'https://a.test/o' },
-    name: `r${String(i)}`,
-    fullName: `o/r${String(i)}`,
-    description: undefined,
-    stars: 0,
-    language: undefined,
-    updatedAt: '2026-01-01T00:00:00Z',
-  })),
+  repos: Array.from({ length: count }, (_, i) =>
+    toRepoDetails(repoSchema.parse(buildRepoDto(i))),
+  ),
   totalCount: count,
   incompleteResults: false,
 });

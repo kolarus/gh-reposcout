@@ -3,7 +3,7 @@ import { FlashList, type FlashListRef } from '@shopify/flash-list';
 import { useEffect, useRef } from 'react';
 import { RefreshControl, View } from 'react-native';
 
-import { RepoCard, type RepoSummary } from '@/entities/repo';
+import { RepoCard, type RepoDetails } from '@/entities/repo';
 import {
   reachedResultCap,
   ResultsHeader,
@@ -22,10 +22,10 @@ type Results = Extract<SearchView, { kind: 'results' }>;
 interface SearchResultsListProps {
   search: RepoSearch;
   view: Results;
-  onPressRepo: (repo: RepoSummary) => void;
+  onPressRepo: (repo: RepoDetails) => void;
 }
 
-const keyExtractor = (repo: RepoSummary) => String(repo.id);
+const keyExtractor = (repo: RepoDetails) => String(repo.id);
 // FlashList keeps the first visible row in place when data changes. That's for
 // lists that grow at the top; here a new sort would open one row down.
 const MVCP_OFF = { disabled: true } as const;
@@ -43,7 +43,7 @@ export function SearchResultsList({
 }: SearchResultsListProps) {
   const theme = useTheme();
   const styles = useStyles();
-  const listRef = useRef<FlashListRef<RepoSummary>>(null);
+  const listRef = useRef<FlashListRef<RepoDetails>>(null);
   // Re-renders the rows once a minute, so "Updated 3m ago" stays true.
   const now = useNow(60_000);
   useScrollToTop(listRef);

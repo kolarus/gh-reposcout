@@ -1,4 +1,4 @@
-import { toRepoSummary } from '@/entities/repo';
+import { toRepoDetails } from '@/entities/repo';
 import { githubClient } from '@/shared/api';
 
 import { searchResponseSchema } from './search.schema';
@@ -33,6 +33,6 @@ export async function searchRepositories(
   return {
     totalCount: body.total_count,
     incompleteResults: body.incomplete_results,
-    items: body.items.map(toRepoSummary),
+    items: body.items.map(toRepoDetails),
   };
 }

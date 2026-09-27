@@ -25,7 +25,7 @@ GitHub serves avatars at about 420–460 px (about 30 KB) by default, and suppor
 
 **Images: React Native's core `Image`**, wrapped in `shared/ui/Avatar`.
 
-- The URL is rebuilt with `s = size × PixelRatio` (`sizedAvatarUrl` in `entities/repo`), at render time for the size being drawn.
+- The URL is rebuilt with `s = size × PixelRatio` (`sizedAvatarUrl` in `shared/api`, since both the repo and owner entities use it and the `s` parameter is GitHub's), at render time for the size being drawn.
 - `key` is set to the URL, so a recycled row never flashes the previous avatar.
 - An initials placeholder sits underneath.
 - `fadeDuration={0}` on Android.

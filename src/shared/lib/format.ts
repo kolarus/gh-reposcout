@@ -58,11 +58,29 @@ export function formatRelativeTime(
   return strings.format.yearsAgo(Math.max(1, Math.round(seconds / YEAR)));
 }
 
+/** A size given in kilobytes, as GitHub reports it: "512 KB", "2.4 MB", "1.3 GB". */
+export function formatSize(kilobytes: number): string {
+  const { kilobytes: kb, megabytes: mb, gigabytes: gb } = strings.format;
+  if (kilobytes < 1024) return `${String(Math.round(kilobytes))} ${kb}`;
+  const megabytes = kilobytes / 1024;
+  if (megabytes < 1024) return `${oneDecimalBelow100(megabytes)} ${mb}`;
+  return `${oneDecimalBelow100(megabytes / 1024)} ${gb}`;
+}
+
+const oneDecimalBelow100 = (value: number): string =>
+  String(value < 100 ? Math.round(value * 10) / 10 : Math.round(value));
+
 /** Whole seconds from `now` until `isoDate`; 0 once it has passed. */
 export function secondsUntil(isoDate: string, now: number): number {
   const time = Date.parse(isoDate);
   if (Number.isNaN(time)) return 0;
   return Math.max(0, Math.ceil((time - now) / 1000));
+}
+
+/** "5 minutes" until `isoDate`, rounded up, never below 1 (for reset times). */
+export function formatMinutesUntil(isoDate: string, now: number): string {
+  const minutes = Math.max(1, Math.ceil(secondsUntil(isoDate, now) / MINUTE));
+  return strings.format.minutes(minutes);
 }
 
 /** Countdown label: 5 → "0:05", 65 → "1:05", 3600 → "60:00". */

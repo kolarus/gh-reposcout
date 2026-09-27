@@ -4,10 +4,14 @@ export {
   formatCompactNumber,
   formatCountdown,
   formatInteger,
+  formatMinutesUntil,
   formatRelativeTime,
+  formatSize,
   secondsUntil,
 } from './format';
+export { openExternalUrl } from './openUrl';
 export { runAt } from './runAt';
+export { toSafeHttpsUrl } from './safeUrl';
 export { useDebouncedValue } from './useDebouncedValue';
 export { useIsOnline } from './useIsOnline';
 export { useNow } from './useNow';
