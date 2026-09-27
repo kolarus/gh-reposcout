@@ -41,6 +41,9 @@ jobs:
           distribution: zulu
           java-version: '17'
       - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          # The Gradle build/cache report is only worth reading when something broke.
+          add-job-summary: on-failure
       - name: Assemble debug APK
         working-directory: android
         # One ABI is enough to prove the native build compiles.
