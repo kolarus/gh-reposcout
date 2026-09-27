@@ -1,10 +1,14 @@
 /**
  * Babel configuration.
+ * React Compiler first, as its docs require: it must see the original source
+ * (ADR-0014). `export * as ns` (used by zod v4) isn't in React Native's preset.
  * `@/` path alias mirrors tsconfig `paths` (layers: ADR-0005).
  */
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
+    'babel-plugin-react-compiler',
+    '@babel/plugin-transform-export-namespace-from',
     [
       'module-resolver',
       {

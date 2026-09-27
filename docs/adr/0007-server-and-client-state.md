@@ -28,7 +28,7 @@ Server data is **never copied** into Zustand.
 - **Search** uses `useInfiniteQuery`: `initialPageParam: 1`, `per_page: 100` (as the brief specifies).
   - `getNextPageParam` stops at `min(total_count, 1000)` (GitHub's search cap) or on a short page.
   - Results are flattened in `select` and **deduplicated by `id`**, because ranking can shift between pages.
-  - `placeholderData: keepPreviousData` when only the sort changes, so the list doesn't flash back to a skeleton.
+  - While a changed search (query or sort) loads, the **previous results stay on screen under a light veil** (`placeholderData` passes the previous data through), so the list never flashes back to a skeleton. Previous results that were empty aren't shown: they say nothing about the new query, so that case shows the skeleton.
 - **Opening a repo is instant.** On row press, `seedRepoDetail` writes the summary into `repoKeys.detail(fullName)` with `updatedAt: 0`. The screen renders at once, and the data counts as stale, so the full record is fetched in the background.
 - **Keys use the lowercased full name.** GitHub names are case-insensitive, so a deep link with different casing still hits the same cache entry.
 - **What Details shows while loading:** full data (live or cached) > saved snapshot (complete but possibly older) > seeded partial data > skeleton. The screen decides this explicitly in `resolveRepoDetailsView` (ADR-0020). The snapshot is _not_ passed as TanStack `placeholderData`, because placeholder data is ignored whenever the cache already holds seeded data.
@@ -36,7 +36,10 @@ Server data is **never copied** into Zustand.
   - `staleTime`: search about 5 minutes, details about 10 minutes
   - `gcTime`: 24 hours (for persistence)
   - `refetchOnWindowFocus` through a `focusManager` tied to the app coming to the foreground
-  - **Exception, the infinite search query:** `refetchOnWindowFocus` and `refetchOnReconnect` are off. TanStack refetches _every loaded page_ of a stale infinite query, so 10 loaded pages would spend the whole 10-requests-per-minute search budget at once (ADR-0012). **Pull-to-refresh resets the query** (`resetQueries`), which fetches only page 1.
+  - **Exception, the infinite search query:** TanStack refetches _every loaded page_ of a stale infinite query, so 10 loaded pages would spend the whole 10-requests-per-minute search budget at once (ADR-0012).
+    - `refetchOnWindowFocus` and `refetchOnReconnect` are off.
+    - `staleTime` is a function: 5 minutes while one page is loaded, `Infinity` once there are more. It has to be `staleTime`, not `refetchOnMount`: switching back to a cached search refetches it whenever it's stale, whatever `refetchOnMount` says (a test covers this).
+    - **Pull-to-refresh** trims the cached data to page 1, then refetches: exactly one request, and page 1 stays on screen during the refresh. (`resetQueries` would also cost one request, but it empties the cache first, so the list would flash to a skeleton.)
   - `onlineManager` from NetInfo (ADR-0011)
 - **Retry by error kind** (ADR-0018): never retry `rate-limited`, `not-found` or `validation`; retry `network` and 5xx up to 2 times with exponential backoff.
 - **Zustand:** always read through selectors (`useStore(s => s.x)`), never the whole store. Actions live next to state inside the store.

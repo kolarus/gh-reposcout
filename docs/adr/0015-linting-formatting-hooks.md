@@ -31,6 +31,7 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
   - `StyleSheet.create` / `makeStyles` only in `*.styles.ts`
   - `fetch` only in `shared/api`
   - `react-native-mmkv` only in `shared/storage`
+  - API response schemas (`*.schema.ts`) imported only from a slice's `api/` or `model/` or its `index.ts` (ADR-0008)
   - the `fetch` global only in `shared/api` (`no-restricted-globals`)
   - `@react-native-vector-icons/*` only in `shared/ui/Icon`
   - no user-facing text literals in JSX outside `shared/i18n` and tests (`no-restricted-syntax` on `JSXText`), so copy goes through `strings.ts` (ADR-0019)
@@ -42,7 +43,7 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
 **Git hooks (lefthook):**
 
 - `pre-commit`: Prettier + ESLint on staged files, plus `tsc --noEmit` (incremental, whole project, because types cross files).
-- `pre-push`: `yarn validate`: typecheck, lint, Prettier check, architecture, docs and version checks, knip, script tests, Jest.
+- `pre-push`: `yarn validate`: typecheck, lint, Prettier check, architecture, docs and version checks, a release Metro bundle for both platforms (ADR-0013), knip, script tests, Jest.
 - `commit-msg`: commitlint with Conventional Commits (ADR-0024).
 
 ## Alternatives considered

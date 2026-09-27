@@ -60,6 +60,9 @@ const Tabs = createBottomTabNavigator({
 export const RootStack = createNativeStackNavigator({
   initialRouteName: 'Tabs',
   screenLayout: ScreenLayout,
+  // iOS labels Back with the previous route's title, which would be "Tabs";
+  // a bare chevron matches iOS 26 system apps. Android shows no label anyway.
+  screenOptions: { headerBackButtonDisplayMode: 'minimal' },
   screens: {
     Tabs: {
       screen: Tabs,

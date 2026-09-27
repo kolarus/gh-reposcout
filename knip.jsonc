@@ -8,9 +8,8 @@
     "src/shared/config/**",
   ],
   "ignoreDependencies": [
-    // Template Babel deps: @babel/runtime helpers are imported by compiled code,
     // preset-env is part of the React Native template's Babel toolchain.
-    "@babel/runtime",
+    // (@babel/runtime needs no entry: FlashList declares it as a peer.)
     "@babel/preset-env",
   ],
 }

@@ -7,6 +7,8 @@ export { Divider } from './Divider';
 export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorFallback } from './ErrorFallback';
 export { Icon, type IconName } from './Icon';
+export { OfflineBanner } from './OfflineBanner';
+export { SearchField } from './SearchField';
 export { Skeleton } from './Skeleton';
 export { StateView } from './StateView';
 export { Text, type TextVariant } from './Text';

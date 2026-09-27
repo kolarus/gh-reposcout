@@ -58,6 +58,21 @@ export function formatRelativeTime(
   return strings.format.yearsAgo(Math.max(1, Math.round(seconds / YEAR)));
 }
 
+/** Whole seconds from `now` until `isoDate`; 0 once it has passed. */
+export function secondsUntil(isoDate: string, now: number): number {
+  const time = Date.parse(isoDate);
+  if (Number.isNaN(time)) return 0;
+  return Math.max(0, Math.ceil((time - now) / 1000));
+}
+
+/** Countdown label: 5 → "0:05", 65 → "1:05", 3600 → "60:00". */
+export function formatCountdown(totalSeconds: number): string {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safe / MINUTE);
+  const seconds = safe % MINUTE;
+  return `${String(minutes)}:${String(seconds).padStart(2, '0')}`;
+}
+
 // Created once: constructing an Intl formatter is expensive, calling it is cheap.
 const integerFormat = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,

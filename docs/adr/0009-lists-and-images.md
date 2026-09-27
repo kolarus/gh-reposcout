@@ -14,15 +14,18 @@ GitHub serves avatars at about 420–460 px (about 30 KB) by default, and suppor
 
 **Lists: FlashList v2** (New Architecture only; no size estimates needed).
 
-- `keyExtractor` = repo `id`. `getItemType` separates rows from the footer and skeleton variants.
+- `keyExtractor` = repo `id`. Only repo rows are recycled items: the count header and footer are `ListHeaderComponent` / `ListFooterComponent`, and the loading skeleton is a static column shown instead of the list, so no `getItemType` is needed.
 - **Rows keep a fixed shape:** description clamped to 2 lines, single-line metadata. Layout is predictable, with little re-measuring.
 - Row components get stable props and no inline closures (React Compiler plus one `onPressRepo(id)` handler, ADR-0014).
 - No per-row `elevation` or shadows; hairline separators instead.
 - Infinite scroll: `onEndReachedThreshold` about 0.5–1 screen, guarded with `isFetchingNextPage` / `hasNextPage`.
+- `maintainVisibleContentPosition` is **disabled**. FlashList v2 enables it by default to keep the first visible row in place when data changes, which suits lists that grow at the top. Ours grows at the bottom, and with it on, a new sort opened one row down (seen on device).
+- A changed search keeps the previous rows visible under a veil (ADR-0007). The veil is an overlay view, not `opacity` on the list: Android fades each view separately, so the avatar's initials placeholder would show through its image.
+- Rows get the current time as a `now` prop (from `useNow`, refreshed each minute) for "Updated 3d ago", so a row's render stays pure (ADR-0014).
 
 **Images: React Native's core `Image`**, wrapped in `shared/ui/Avatar`.
 
-- The URL is rebuilt with `s = size × PixelRatio`.
+- The URL is rebuilt with `s = size × PixelRatio` (`sizedAvatarUrl` in `entities/repo`), at render time for the size being drawn.
 - `key` is set to the URL, so a recycled row never flashes the previous avatar.
 - An initials placeholder sits underneath.
 - `fadeDuration={0}` on Android.

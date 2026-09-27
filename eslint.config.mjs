@@ -57,6 +57,11 @@ const restrictedImportPatterns = [
     group: ['@react-native-vector-icons/*'],
     message: 'Use the Icon component from @/shared/ui (ADR-0010).',
   },
+  {
+    group: ['*.schema'],
+    message:
+      "API response schemas stay in a slice's api/ and model/ (ADR-0008); elsewhere, use the mapped domain types.",
+  },
 ];
 const noRestrictedImports = (...allowed) => [
   'error',
@@ -362,6 +367,10 @@ export default tseslint.config(
   {
     files: ['src/shared/storage/**'],
     rules: { 'no-restricted-imports': noRestrictedImports('mmkv') },
+  },
+  {
+    files: ['src/**/api/**', 'src/**/model/**', 'src/**/index.ts'],
+    rules: { 'no-restricted-imports': noRestrictedImports('*.schema') },
   },
   { files: ['src/shared/api/**'], rules: { 'no-restricted-globals': 'off' } },
   { files: ['src/shared/monitoring/**'], rules: { 'no-console': 'off' } },

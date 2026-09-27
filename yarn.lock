@@ -797,7 +797,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-export-namespace-from@npm:^7.29.7":
+"@babel/plugin-transform-export-namespace-from@npm:7.29.7, @babel/plugin-transform-export-namespace-from@npm:^7.29.7":
   version: 7.29.7
   resolution: "@babel/plugin-transform-export-namespace-from@npm:7.29.7"
   dependencies:
@@ -1424,7 +1424,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.28.2, @babel/types@npm:^7.29.0, @babel/types@npm:^7.29.7, @babel/types@npm:^7.29.8, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4":
+"@babel/types@npm:^7.0.0, @babel/types@npm:^7.20.7, @babel/types@npm:^7.26.0, @babel/types@npm:^7.28.2, @babel/types@npm:^7.29.0, @babel/types@npm:^7.29.7, @babel/types@npm:^7.29.8, @babel/types@npm:^7.3.3, @babel/types@npm:^7.4.4":
   version: 7.29.8
   resolution: "@babel/types@npm:7.29.8"
   dependencies:
@@ -3224,6 +3224,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shopify/flash-list@npm:2.3.2":
+  version: 2.3.2
+  resolution: "@shopify/flash-list@npm:2.3.2"
+  peerDependencies:
+    "@babel/runtime": "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/3e58913506b1dc7f02dd0696c478fd963ede413d9d7121705a08ff505d5c21e611813ce9370068238b8983ff582ed7b8ee94f68e94f99a1ac8f600c01fff118e
+  languageName: node
+  linkType: hard
+
 "@sideway/address@npm:^4.1.5":
   version: 4.1.5
   resolution: "@sideway/address@npm:4.1.5"
@@ -4302,6 +4313,15 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.4.0 || ^8.0.0-0 <8.0.0
   checksum: 10c0/7c8b2497c29fa880e0acdc8e7b93e29b81b154179b83beb0476eb2c4e7a78b6b42fc35c2554ca250c9bd6d39941eaf75416254b8592ce50979f9a12e1d51c049
+  languageName: node
+  linkType: hard
+
+"babel-plugin-react-compiler@npm:1.0.0":
+  version: 1.0.0
+  resolution: "babel-plugin-react-compiler@npm:1.0.0"
+  dependencies:
+    "@babel/types": "npm:^7.26.0"
+  checksum: 10c0/9406267ada8d7dbdfe8906b40ecadb816a5f4cee2922bee23f7729293b369624ee135b5a9b0f263851c263c9787522ac5d97016c9a2b82d1668300e42b18aff8
   languageName: node
   linkType: hard
 
@@ -9707,6 +9727,7 @@ __metadata:
   resolution: "reposcout@workspace:."
   dependencies:
     "@babel/core": "npm:7.29.7"
+    "@babel/plugin-transform-export-namespace-from": "npm:7.29.7"
     "@babel/preset-env": "npm:7.29.7"
     "@babel/runtime": "npm:7.29.7"
     "@commitlint/cli": "npm:21.2.3"
@@ -9725,6 +9746,7 @@ __metadata:
     "@react-navigation/bottom-tabs": "npm:7.19.2"
     "@react-navigation/native": "npm:7.4.1"
     "@react-navigation/native-stack": "npm:7.19.2"
+    "@shopify/flash-list": "npm:2.3.2"
     "@tanstack/eslint-plugin-query": "npm:5.103.2"
     "@tanstack/react-query": "npm:5.103.2"
     "@testing-library/react-native": "npm:14.0.1"
@@ -9733,6 +9755,7 @@ __metadata:
     "@types/react": "npm:19.3.0"
     babel-jest: "npm:29.7.0"
     babel-plugin-module-resolver: "npm:5.0.3"
+    babel-plugin-react-compiler: "npm:1.0.0"
     dependency-cruiser: "npm:18.4.0"
     eslint: "npm:9.39.5"
     eslint-config-prettier: "npm:10.1.8"

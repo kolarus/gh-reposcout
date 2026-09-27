@@ -27,13 +27,13 @@ Any token bundled into a mobile app is extractable from the binary. Proper authe
 - Cancel requests that are no longer needed (AbortSignal).
 - Normalise queries (ADR-0008) and deduplicate identical requests through the cache (ADR-0007). Search `staleTime` is about 5 minutes.
 - Fetch the next page only near the end of the list, never eagerly. With `per_page=100` that's at most 10 requests per query.
-- **Never refetch all loaded pages at once.** TanStack refetches every page of a stale infinite query, which could spend the whole minute's budget in one go. Search therefore doesn't refetch on app focus or reconnect, and pull-to-refresh resets the query to page 1 (ADR-0007).
+- **Never refetch all loaded pages at once.** TanStack refetches every page of a stale infinite query, which could spend the whole minute's budget in one go. Search therefore doesn't refetch on app focus or reconnect, a search with several pages loaded never goes stale on its own, and pull-to-refresh refetches page 1 only (ADR-0007).
 
 **When a limit is hit:**
 
 - Every response's `x-ratelimit-resource` / `x-ratelimit-remaining` / `x-ratelimit-reset` / `retry-after` headers go into a small rate-limit store, **keyed by bucket**. `search` and `core` are separate budgets, so running out of one must not block the other.
 - A `rate-limited` error is **never retried automatically**.
-  - Search bucket: a banner on Search shows a **live countdown** to the reset time, then refetches automatically.
+  - Search bucket: a banner on Search shows a **live countdown** to the reset time, then refetches automatically. The banner also appears as soon as a response reports `x-ratelimit-remaining: 0`, before a search actually fails. Its spoken text is a fixed sentence, so screen readers aren't interrupted every second.
   - Core bucket: Details keeps showing what it has (pre-filled or snapshot data) with an inline notice and the reset time. Search keeps working.
 - **Details keep working when the core limit is exhausted.** They're pre-filled from search results (ADR-0007) or saved snapshots (ADR-0020). The owner section fails on its own without breaking the screen.
 

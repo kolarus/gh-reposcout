@@ -46,7 +46,17 @@ As of 2026-09-26:
 
 - MMKV v4 returns an in-memory store under Jest by itself (ADR-0011), but still imports Nitro's native bridge when loaded. `react-native-nitro-modules` is stubbed with an object that throws if it's ever called, so an accidental native call fails loudly instead of silently.
 - NetInfo uses the Jest mock shipped in its package.
-- `transformIgnorePatterns` lets Babel transform every `react-native*` and `@react-native*` package plus `@react-navigation` and `@react-native-vector-icons`, since many of them ship untranspiled ES modules. It's a pattern rather than a list of names, so a new React Native library usually needs no Jest change.
+- `transformIgnorePatterns` lets Babel transform every `react-native*` and `@react-native*` package plus `@react-navigation`, `@react-native-vector-icons` and `@shopify/flash-list`, since many of them ship untranspiled ES modules. It's a pattern rather than a list of names, so a new React Native library usually needs no Jest change.
+- FlashList's official Jest setup mocks its layout measurements (a 400 × 900 viewport), so screen tests render real rows.
+- TanStack Query keeps unused data for 24 hours on a real timer (ADR-0011). Its timers are created through a Jest-only provider that `unref`s them: they still fire, but can't keep Jest running after the last test (without this, the App test left Jest hanging).
+
+**Helpers** (`src/test/`):
+
+- `TestProviders` / `createWrapper(queryClient)`: theme and a query client with retries off (the retry policy has its own tests), for screens and hooks.
+- `github.ts`: `buildRepoDto(id, overrides)` and `buildSearchPage({ page, total })`, built from a real captured search response (`fixtures/search-repositories.json`), which the contract tests also parse as is.
+- Timer-dependent behaviour (debounce, countdown, rate-limit resume, staleness) uses Jest's fake timers; MSW works with them.
+
+**What Jest can't catch:** Jest loads each package's Node build, while Metro bundles the React Native build, so a syntax the app's Babel setup doesn't handle can pass every test and still break the app. (zod v4's `export * as` did exactly that.) `yarn check:bundle` builds a release bundle for both platforms, about 10 seconds, and is part of `yarn validate`.
 
 **Libraries:** Jest 29 (from the template) with `@react-native/jest-preset`; React Native Testing Library 14, which renders with the new `test-renderer` package (the old `react-test-renderer` is deprecated); `react-native-safe-area-context`'s official Jest mock. The repo scripts' own tests use Node's built-in `node:test` runner (`yarn test:scripts`).
 

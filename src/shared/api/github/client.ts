@@ -195,3 +195,6 @@ export function createGitHubClient(
     },
   };
 }
+
+/** The app's GitHub client: default base URL, timeout and global `fetch`. */
+export const githubClient = createGitHubClient();

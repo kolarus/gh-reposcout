@@ -7,7 +7,7 @@ describe('App', () => {
     await render(<App />);
 
     expect(
-      await screen.findByRole('header', { name: 'Search is coming next' }),
+      await screen.findByLabelText('Search repositories'),
     ).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: /Saved/ })).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: /Settings/ })).toBeOnTheScreen();

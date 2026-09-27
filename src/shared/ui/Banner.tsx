@@ -11,6 +11,12 @@ interface BannerProps {
   tone: BannerTone;
   icon: IconName;
   message: string;
+  /**
+   * What screen readers say instead of `message`. Use it when the visible text
+   * changes often (a countdown), so the live region isn't re-announced every
+   * second.
+   */
+  accessibilityMessage?: string;
   action?: { label: string; onPress: () => void };
 }
 
@@ -21,7 +27,13 @@ const contentTone: Record<BannerTone, IconTone> = {
 };
 
 /** Inline status strip, e.g. offline or rate limited. Announced by screen readers. */
-export function Banner({ tone, icon, message, action }: BannerProps) {
+export function Banner({
+  tone,
+  icon,
+  message,
+  accessibilityMessage,
+  action,
+}: BannerProps) {
   const styles = useStyles();
 
   return (
@@ -34,6 +46,7 @@ export function Banner({ tone, icon, message, action }: BannerProps) {
         tone={contentTone[tone]}
         style={styles.message}
         accessibilityRole="alert"
+        accessibilityLabel={accessibilityMessage ?? message}
       >
         {message}
       </Text>
