@@ -4,6 +4,8 @@ import {
   type QueryClient,
 } from '@tanstack/react-query';
 
+import { persistedQueryMeta } from '@/shared/api';
+
 import { ownerKeys } from './ownerKeys';
 import { fetchOwner } from '../api/fetchOwner';
 import type { OwnerProfile } from '../model/types';
@@ -16,6 +18,7 @@ const ownerQueryOptions = (login: string) =>
     queryKey: ownerKeys.detail(login),
     queryFn: ({ signal }) => fetchOwner(login, signal),
     staleTime: OWNER_STALE_TIME_MS,
+    meta: persistedQueryMeta,
   });
 
 /**

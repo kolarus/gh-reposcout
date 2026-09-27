@@ -4,6 +4,8 @@ import {
   type QueryClient,
 } from '@tanstack/react-query';
 
+import { persistedQueryMeta } from '@/shared/api';
+
 import { repoKeys } from './repoKeys';
 import { fetchRepository } from '../api/fetchRepository';
 import type { RepoRef } from '../model/repoRef';
@@ -16,6 +18,7 @@ const repoQueryOptions = (ref: RepoRef) =>
     queryKey: repoKeys.detail(ref),
     queryFn: ({ signal }) => fetchRepository(ref, signal),
     staleTime: REPO_STALE_TIME_MS,
+    meta: persistedQueryMeta,
   });
 
 /**

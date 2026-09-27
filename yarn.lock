@@ -3321,10 +3321,41 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-async-storage-persister@npm:5.103.2":
+  version: 5.103.2
+  resolution: "@tanstack/query-async-storage-persister@npm:5.103.2"
+  dependencies:
+    "@tanstack/query-core": "npm:5.103.2"
+    "@tanstack/query-persist-client-core": "npm:5.103.2"
+  checksum: 10c0/b8ac654ca18d1869aa0ec9bdb735c97e62ceeece4e82c7c929b1d78574cd9f6553a91a69917d4a240e466de4bf068aa1f5a158f047fbd02dee4a7d7a73a6b2f8
+  languageName: node
+  linkType: hard
+
 "@tanstack/query-core@npm:5.103.2":
   version: 5.103.2
   resolution: "@tanstack/query-core@npm:5.103.2"
   checksum: 10c0/52362dd214a487b2194728a79c7fd1bd7af1831f21928030866a8ad28877eaec050e7215a6f3b3a0c4fdf601644ae8edb652e4cef7270f6f82d7371d2bbe9f41
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-persist-client-core@npm:5.103.2":
+  version: 5.103.2
+  resolution: "@tanstack/query-persist-client-core@npm:5.103.2"
+  dependencies:
+    "@tanstack/query-core": "npm:5.103.2"
+  checksum: 10c0/c8896463bfd749c775ba90eebf7496faf850072c4db67016291024064f8e72ebbd83ca04f7ec20af2a931dc8aaa5a525110c3fe004d2830573de0c3a98ef76d5
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-persist-client@npm:5.103.2":
+  version: 5.103.2
+  resolution: "@tanstack/react-query-persist-client@npm:5.103.2"
+  dependencies:
+    "@tanstack/query-persist-client-core": "npm:5.103.2"
+  peerDependencies:
+    "@tanstack/react-query": ^5.103.2
+    react: ^18 || ^19
+  checksum: 10c0/888dd7ebc7bd89ae8f5e647f4e1e4639ff8a83a550672f3bc568572ab64f3b110f81380844f6572ced1938e58531207ec9b69809d2afde348fce27a2e8350e05
   languageName: node
   linkType: hard
 
@@ -9483,6 +9514,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-haptic-feedback@npm:3.0.0":
+  version: 3.0.0
+  resolution: "react-native-haptic-feedback@npm:3.0.0"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-native: ">=0.71.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  checksum: 10c0/209566a098470b33e209aafc333dc897f911dc71243a41ab5486cb067e995dde78daa276b33b6c13b004bf1168352452bf39c4d9c536b6d3c9c210b6d78028cf
+  languageName: node
+  linkType: hard
+
 "react-native-mmkv@npm:4.3.2":
   version: 4.3.2
   resolution: "react-native-mmkv@npm:4.3.2"
@@ -9748,7 +9792,9 @@ __metadata:
     "@react-navigation/native-stack": "npm:7.19.2"
     "@shopify/flash-list": "npm:2.3.2"
     "@tanstack/eslint-plugin-query": "npm:5.103.2"
+    "@tanstack/query-async-storage-persister": "npm:5.103.2"
     "@tanstack/react-query": "npm:5.103.2"
+    "@tanstack/react-query-persist-client": "npm:5.103.2"
     "@testing-library/react-native": "npm:14.0.1"
     "@types/jest": "npm:29.5.14"
     "@types/node": "npm:24.13.6"
@@ -9776,6 +9822,7 @@ __metadata:
     prettier: "npm:3.9.9"
     react: "npm:19.2.3"
     react-native: "npm:0.87.1"
+    react-native-haptic-feedback: "npm:3.0.0"
     react-native-mmkv: "npm:4.3.2"
     react-native-nitro-modules: "npm:0.37.1"
     react-native-safe-area-context: "npm:5.10.0"

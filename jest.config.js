@@ -5,6 +5,9 @@
 module.exports = {
   preset: '@react-native/jest-preset',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // Every test starts with empty call records, so a spy shared across tests
+  // (e.g. on `haptics`) counts only its own test's calls.
+  clearMocks: true,
   moduleNameMapper: {
     // MSW's exports map returns `null` for the `react-native` condition that the
     // RN Jest environment uses, so point its Node entry at the CommonJS build.

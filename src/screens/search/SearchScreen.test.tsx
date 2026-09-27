@@ -16,9 +16,12 @@ import { http, HttpResponse } from 'msw';
 
 import { useRecentSearches } from '@/features/search-repos';
 import { useRateLimit } from '@/shared/api';
+import { haptics } from '@/shared/lib';
 import { Text } from '@/shared/ui';
+import { expectAccessiblePressables } from '@/test/a11y';
 import { createGate } from '@/test/gate';
 import { buildSearchPage, SEARCH_URL } from '@/test/github';
+import { pullToRefresh } from '@/test/pullToRefresh';
 import { server } from '@/test/server';
 import { createTestQueryClient, TestProviders } from '@/test/TestProviders';
 
@@ -297,5 +300,32 @@ describe('SearchScreen', () => {
         screen.getByRole('header', { name: "You're offline" }),
       ).toBeOnTheScreen();
     });
+  });
+
+  it('pull-to-refresh reloads the first page, with a haptic', async () => {
+    const queries = serveSearch(3);
+    const impact = jest.spyOn(haptics, 'impact');
+    const queryClient = await renderScreen();
+    await typeQuery('react');
+    await screen.findByRole('button', { name: /^owner-1\/repo-1,/ });
+
+    await pullToRefresh();
+
+    expect(impact).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+    expect(queries).toEqual(['react', 'react']);
+  });
+
+  it('meets the accessibility floor, idle and with results', async () => {
+    useRecentSearches.getState().add('flash list');
+    serveSearch(3);
+    await renderScreen();
+    expectAccessiblePressables();
+
+    await typeQuery('react');
+    await screen.findByRole('button', { name: /^owner-1\/repo-1,/ });
+    expectAccessiblePressables();
   });
 });

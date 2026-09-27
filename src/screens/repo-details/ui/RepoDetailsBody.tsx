@@ -15,6 +15,7 @@ import {
   assertNever,
   formatMinutesUntil,
   formatRelativeTime,
+  haptics,
   openExternalUrl,
   useNow,
 } from '@/shared/lib';
@@ -171,6 +172,7 @@ export function RepoDetailsBody({ repoRef }: { repoRef: RepoRef }) {
                 <RefreshControl
                   refreshing={details.isRefreshing}
                   onRefresh={() => {
+                    haptics.impact();
                     void details.refresh();
                   }}
                   tintColor={theme.colors.accent}

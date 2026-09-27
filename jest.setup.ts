@@ -34,6 +34,10 @@ jest.mock('@react-native-community/netinfo', () =>
   ),
 );
 
+// The haptics library looks up its native module when loaded; tests only
+// check which feedback was asked for.
+jest.mock('react-native-haptic-feedback', () => ({ trigger: jest.fn() }));
+
 // TanStack Query keeps unused data for 24 hours, on a real timer (ADR-0011).
 // Unref'd, its timers still fire, but can't keep Jest running after the tests.
 const hasUnref = (timer: unknown): timer is { unref: () => void } =>

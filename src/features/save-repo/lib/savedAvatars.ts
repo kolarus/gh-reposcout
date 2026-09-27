@@ -40,3 +40,8 @@ export function releaseOwnerAvatar(login: string): void {
   );
   if (!stillUsed) savedAvatarStorage.remove(key);
 }
+
+/** Deletes every saved avatar, when all saved repos are removed at once. */
+export function releaseAllAvatars(): void {
+  savedAvatarStorage.clearAll();
+}

@@ -15,6 +15,7 @@ import { repoSchema, toRepoDetails } from '@/entities/repo';
 import type { SavedRepoSnapshot } from '@/features/save-repo';
 import { savedAvatarStorage } from '@/shared/storage';
 import { Text } from '@/shared/ui';
+import { expectAccessiblePressables } from '@/test/a11y';
 import { AVATAR_DATA_URI, buildRepoDto } from '@/test/github';
 import { createTestQueryClient, TestProviders } from '@/test/TestProviders';
 
@@ -99,5 +100,12 @@ describe('SavedScreen', () => {
 
     await fireEvent.press(second);
     expect(await screen.findByText('details:owner-2/repo-2')).toBeOnTheScreen();
+  });
+
+  it('meets the accessibility floor', async () => {
+    mockSavedList.mockReturnValue([snapshotOf(2), snapshotOf(1)]);
+    await renderSaved();
+
+    expectAccessiblePressables();
   });
 });

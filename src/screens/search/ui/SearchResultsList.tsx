@@ -12,7 +12,7 @@ import {
   type RepoSearch,
   type SearchView,
 } from '@/features/search-repos';
-import { useNow } from '@/shared/lib';
+import { haptics, useNow } from '@/shared/lib';
 import { useTheme } from '@/shared/theme';
 import { Divider } from '@/shared/ui';
 
@@ -95,6 +95,7 @@ export function SearchResultsList({
             enabled={!isStale}
             refreshing={search.isRefreshing}
             onRefresh={() => {
+              haptics.impact();
               void search.refresh();
             }}
             tintColor={theme.colors.accent}

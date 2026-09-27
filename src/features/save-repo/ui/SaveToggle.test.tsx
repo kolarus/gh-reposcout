@@ -8,6 +8,7 @@ import { http, HttpResponse } from 'msw';
 import { Profiler } from 'react';
 
 import { repoSchema, toRepoDetails } from '@/entities/repo';
+import { haptics } from '@/shared/lib';
 import { savedAvatarStorage } from '@/shared/storage';
 import {
   AVATAR_BYTES,
@@ -44,7 +45,8 @@ beforeEach(() => {
 });
 
 describe('SaveToggle', () => {
-  it('saves and unsaves, saying which it will do', async () => {
+  it('saves and unsaves with a haptic, saying which it will do', async () => {
+    const impact = jest.spyOn(haptics, 'impact');
     const queryClient = createTestQueryClient();
     await render(
       <TestProviders queryClient={queryClient}>
@@ -69,6 +71,7 @@ describe('SaveToggle', () => {
       screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
     ).not.toBeSelected();
     expect(useSavedRepos.getState().order).toEqual([]);
+    expect(impact).toHaveBeenCalledTimes(2);
   });
 
   it('toggling one repo re-renders only that repo’s toggle', async () => {

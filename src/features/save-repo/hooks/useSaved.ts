@@ -10,6 +10,7 @@ import { completeSnapshot } from '../lib/completeSnapshot';
 import {
   avatarKey,
   keepOwnerAvatar,
+  releaseAllAvatars,
   releaseOwnerAvatar,
 } from '../lib/savedAvatars';
 import { fullNameKey } from '../model/restoreSaved';
@@ -19,6 +20,10 @@ import { useSavedRepos } from '../store/savedRepos';
 /** Whether one repo is saved. An O(1) selector: only that repo's rows re-render. */
 export const useIsSaved = (id: number): boolean =>
   useSavedRepos(state => state.byId[String(id)] !== undefined);
+
+/** How many repos are saved. */
+export const useSavedCount = (): number =>
+  useSavedRepos(state => state.order.length);
 
 /** Saved snapshots, most recently saved first. */
 export const useSavedList = (): SavedRepoSnapshot[] =>
@@ -63,6 +68,12 @@ export function useToggleSaved(): (repo: RepoDetails) => void {
     store.save(repo);
     void completeSnapshot(queryClient, repo);
   };
+}
+
+/** Removes every saved repo and its avatar (Settings → Data). */
+export function clearSavedRepos(): void {
+  useSavedRepos.getState().clear();
+  releaseAllAvatars();
 }
 
 /**

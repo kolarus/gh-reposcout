@@ -2,7 +2,7 @@ import { View } from 'react-native';
 
 import type { RepoDetails } from '@/entities/repo';
 import { strings } from '@/shared/i18n';
-import { openExternalUrl } from '@/shared/lib';
+import { haptics, openExternalUrl } from '@/shared/lib';
 import { Button } from '@/shared/ui';
 
 import { useStyles } from './RepoActions.styles';
@@ -28,6 +28,7 @@ export function RepoActions({ repo }: { repo: RepoDetails }) {
           icon="share"
           variant="secondary"
           onPress={() => {
+            haptics.impact();
             void shareRepo(repo);
           }}
         />

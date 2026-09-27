@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
+import { Appearance } from 'react-native';
 
 import { makeStyles } from './makeStyles';
 import { useThemePreference } from './themePreference';
@@ -29,6 +30,22 @@ describe('ThemeProvider', () => {
     });
 
     expect(result.current).toBe(darkTheme);
+  });
+
+  it('makes native UI follow the preference, and the system when unset', async () => {
+    const setColorScheme = jest.spyOn(Appearance, 'setColorScheme');
+    await renderHook(() => useTheme(), { wrapper });
+    expect(setColorScheme).toHaveBeenLastCalledWith('auto');
+
+    await act(() => {
+      useThemePreference.getState().setPreference('dark');
+    });
+    expect(setColorScheme).toHaveBeenLastCalledWith('dark');
+
+    await act(() => {
+      useThemePreference.getState().setPreference('system');
+    });
+    expect(setColorScheme).toHaveBeenLastCalledWith('auto');
   });
 
   it('applies an explicit light preference', async () => {

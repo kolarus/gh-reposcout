@@ -2,6 +2,7 @@ import { Pressable } from 'react-native';
 
 import type { RepoDetails } from '@/entities/repo';
 import { strings } from '@/shared/i18n';
+import { haptics } from '@/shared/lib';
 import { Icon } from '@/shared/ui';
 
 import { useStyles } from './SaveToggle.styles';
@@ -18,6 +19,7 @@ export function SaveToggle({ repo }: { repo: RepoDetails }) {
   return (
     <Pressable
       onPress={() => {
+        haptics.impact();
         toggle(repo);
       }}
       accessibilityRole="button"

@@ -18,8 +18,9 @@ The app needs light and dark themes (following the system, with a manual overrid
 
 **Provider:**
 
-- The theme preference (`system | light | dark`) lives in a Zustand store in `shared/theme`, persisted with MMKV once `shared/storage` exists.
+- The theme preference (`system | light | dark`) lives in a Zustand store in `shared/theme`, persisted with MMKV (ADR-0011). Settings → Appearance changes it through the `switch-theme` feature's segmented control.
 - `ThemeProvider` resolves the preference plus `useColorScheme()` into a `Theme` and puts it in context. The context value is memoised.
+- It also passes an explicit preference to `Appearance.setColorScheme()` (`auto` for `system`), so native UI follows the in-app choice too: alerts, the keyboard, the share sheet. Found on device: without it, a confirmation dialog in dark mode rendered light.
 
 **`makeStyles((theme) => StyleSheet.create({...}))`:**
 
@@ -53,6 +54,12 @@ The app needs light and dark themes (following the system, with a manual overrid
 - The `mark-github` glyph is used only to mean "open on GitHub", never as our own branding (ADR-0023).
 - Setup, verified in Phase 1 on both platforms: v21 ships only the font, packaged natively (an Android asset and an iOS podspec) with no native module code. iOS registers `Octicons.ttf` under `UIAppFonts` in `Info.plist` (via the package's `rnvi-update-plist` tool); Android needs nothing.
 
+**Haptics** (`react-native-haptic-feedback` 3.0, used only through `haptics` in `shared/lib`; lint rejects the import elsewhere):
+
+- A light impact when an action takes effect (save or unsave, share, pull-to-refresh) and a selection tick when the theme changes. Nothing else, so the feedback stays meaningful.
+- The library honours the system setting: with haptics off, nothing plays. No vibration fallback on old iPhones without a Taptic Engine.
+- Admission (ADR-0002), checked 2026-09-27: a New Architecture TurboModule (codegen spec); 3.0.0 released 2026-03-29 with commits into mid-2026; React Native has no haptics API (`Vibration` drives the raw vibrator, not UI haptics). Android gets the normal `VIBRATE` permission, granted at install without a prompt.
+
 **UI catalog (development only):** `screens/ui-catalog` shows every token and shared component in the current theme, with a theme switch. It's used for design review, and becomes reachable only in development builds once navigation exists.
 
 **Splash screen** (react-native-bootsplash):
@@ -69,6 +76,7 @@ The app needs light and dark themes (following the system, with a manual overrid
 - **Styles inline in the component file.** Rejected by project convention (ADR-0005): harder to review, and it can't be lint-enforced consistently.
 - **Reanimated 4 (+ worklets).** Needed for gesture-driven or layout animations, which we don't have. It adds a native dependency and build time. We'll add it when a feature needs it.
 - **Icons: `react-native-svg` + Lucide.** A bigger, modern set, but each icon is an SVG component (heavier in list rows) and `react-native-svg` is another native dependency.
+- **Haptics: `expo-haptics`.** Needs the Expo modules layer (ADR-0002). **Core `Vibration`:** a raw buzz, not the system's UI haptics.
 - **Icons: a hand-made minimal set.** Fewest dependencies, but more manual work and less consistency.
 - **Buying the bootsplash licence for dark splash generation.** Works, but setting two native colour resources by hand is trivial.
 

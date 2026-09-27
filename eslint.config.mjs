@@ -46,6 +46,10 @@ const restrictedImportPaths = {
     name: 'react-native-mmkv',
     message: 'MMKV instances are created only in @/shared/storage (ADR-0011).',
   },
+  haptics: {
+    name: 'react-native-haptic-feedback',
+    message: 'Use haptics from @/shared/lib (ADR-0010).',
+  },
 };
 const restrictedImportPatterns = [
   {
@@ -390,6 +394,10 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': noRestrictedImports('mmkv') },
   },
   {
+    files: ['src/shared/lib/haptics.ts'],
+    rules: { 'no-restricted-imports': noRestrictedImports('haptics') },
+  },
+  {
     files: ['src/**/api/**', 'src/**/model/**', 'src/**/index.ts'],
     rules: { 'no-restricted-imports': noRestrictedImports('*.schema') },
   },
@@ -419,6 +427,11 @@ export default tseslint.config(
   {
     files: TEST_FILES,
     rules: {
+      // Shared assertion helpers from src/test count as assertions.
+      'jest/expect-expect': [
+        'error',
+        { assertFunctionNames: ['expect', 'expectAccessiblePressables'] },
+      ],
       'no-restricted-globals': 'off',
       // Tests aren't components: they may use inline copy and build styles.
       'no-restricted-syntax': noRestrictedSyntax('jsxText', 'styles'),

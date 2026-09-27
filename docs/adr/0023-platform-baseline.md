@@ -92,6 +92,7 @@ Negative / accepted costs:
 ## Enforcement
 
 - React Native Testing Library tests query by role and label, so missing labels fail tests.
+- Every screen test calls `expectAccessiblePressables()` (`src/test/a11y.ts`): a pressable without a role or a name fails it, including ones no test presses.
 - The `rn-review` skill checks the accessibility floor (unlabelled pressables) and the platform items.
 - The 16 KB check is a step in the release workflow.
 

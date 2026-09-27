@@ -51,6 +51,7 @@ The project owner wants users to **save repos locally and view them offline**, w
 4. If the download fails, the save still succeeds: show an initials fallback and retry on the next online view.
 5. The avatar CDN doesn't count against the API rate limit.
 6. When no saved repo references an owner any more, the avatar is deleted (reference counting).
+7. Details picks its avatar source once, when the repo first shows: the saved copy if there is one, otherwise the network image. Saving or unsaving while it's open doesn't swap the image. Found on device: a new source remounts the image, which flickered through the initials on every save and unsave.
 
 We'd move to file storage only if the saved count grows large; there's a soft cap and warning at about 500.
 
@@ -78,9 +79,9 @@ screens/repo-details/useRepoDetailsView.ts
 
 **UI:**
 
-- `SaveToggle` (a bookmark) on each result row, through `RepoCard`'s `accessory` slot (ADR-0005), and next to Details' Open on GitHub / Share. Not in the navigation header: the toggle then needs no navigation wiring, and it stays where the other actions are. It has an accessibility role, label and selected state; the haptic arrives with the other haptics (Phase 4), and a spoken announcement is part of the deferred accessibility pass.
+- `SaveToggle` (a bookmark) on each result row, through `RepoCard`'s `accessory` slot (ADR-0005), and next to Details' Open on GitHub / Share. Not in the navigation header: the toggle then needs no navigation wiring, and it stays where the other actions are. It has an accessibility role, label and selected state, and a light haptic (ADR-0010); a spoken announcement is part of the deferred accessibility pass.
 - A Saved tab (sorted by date saved), with a remove action and an empty state explaining offline availability. An undo toast is in the improvements backlog.
-- Settings → "Clear saved repos", with a confirmation (Phase 4, with the Settings screen).
+- Settings → "Remove saved repositories", with a confirmation: removes every snapshot and every stored avatar (`clearSavedRepos`).
 
 ## Alternatives considered
 

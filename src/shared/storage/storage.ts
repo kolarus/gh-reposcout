@@ -5,9 +5,10 @@ import type { StateStorage } from 'zustand/middleware';
 /**
  * MMKV instances, one per purpose (ADR-0011). Reads are synchronous, so
  * persisted Zustand stores are ready before the first render (no flash).
- * The query-cache instance arrives with query persistence (Phase 4).
  */
 export const appStorage = createMMKV({ id: 'app' });
+/** The persisted TanStack Query cache: at most 24 h old (ADR-0011). */
+export const queryCacheStorage = createMMKV({ id: 'query-cache' });
 /** Saved-repo snapshots (ADR-0020): kept until the user removes them. */
 export const savedReposStorage = createMMKV({ id: 'saved' });
 /** Owners' avatars for saved repos, as data URIs keyed by login (ADR-0020). */

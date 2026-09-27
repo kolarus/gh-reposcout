@@ -49,13 +49,28 @@ export function useRepoDetailsView(ref: RepoRef) {
     fetchedAt: repoQuery.dataUpdatedAt,
     owner: ownerQuery.data,
   });
-  const savedAvatarUri = useSavedAvatar(repo?.owner.login);
+  // The avatar source is chosen once, when the repo first shows: the saved
+  // copy if there is one, otherwise the network image. Saving or unsaving
+  // while the screen is open then leaves the image alone; a new source would
+  // remount it, and it would flicker through the initials.
+  const storedAvatar = useSavedAvatar(repo?.owner.login);
+  const [avatarChoice, setAvatarChoice] = useState<
+    { uri: string | undefined } | undefined
+  >();
+  if (avatarChoice === undefined && repo !== undefined) {
+    setAvatarChoice({ uri: storedAvatar });
+  }
+  const savedAvatarUri =
+    avatarChoice === undefined ? storedAvatar : avatarChoice.uri;
 
   const [isRefreshing, setRefreshing] = useState(false);
 
   return {
     view,
-    /** The owner's avatar saved on the device, if the repo is saved. */
+    /**
+     * The owner's avatar saved on the device, if the repo was saved when the
+     * screen opened; kept for the screen's lifetime.
+     */
     savedAvatarUri,
     ownerSection: resolveOwnerSection({
       profile: ownerQuery.data,

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +15,9 @@ import {
   Chip,
   Divider,
   Icon,
+  ListRow,
+  ListSection,
+  SegmentedControl,
   Skeleton,
   StateView,
   Text,
@@ -50,7 +54,16 @@ const ICONS: readonly IconName[] = [
   'link-external',
   'share',
   'cloud-offline',
+  'device-mobile',
+  'sun',
+  'moon',
+  'chevron-right',
 ];
+const SEGMENTS = [
+  { value: 'one', label: copy.segments.one },
+  { value: 'two', label: copy.segments.two },
+  { value: 'three', label: copy.segments.three },
+] as const;
 const noop = () => undefined;
 
 /**
@@ -63,6 +76,8 @@ export function UiCatalogScreen() {
   const insets = useSafeAreaInsets();
   const preference = useThemePreference(state => state.preference);
   const setPreference = useThemePreference(state => state.setPreference);
+  const [segment, setSegment] =
+    useState<(typeof SEGMENTS)[number]['value']>('one');
   // A mapped Record (unlike the ThemeColors interface) keeps Object.entries typed.
   const colors: Readonly<Record<keyof ThemeColors, string>> = theme.colors;
 
@@ -190,6 +205,35 @@ export function UiCatalogScreen() {
             <Skeleton width="40%" height={12} />
           </View>
         </View>
+      </CatalogSection>
+
+      <CatalogSection title={copy.sections.segmented}>
+        <SegmentedControl
+          segments={SEGMENTS}
+          value={segment}
+          onChange={setSegment}
+          accessibilityLabel={copy.sections.segmented}
+        />
+      </CatalogSection>
+
+      <CatalogSection title={copy.sections.list}>
+        <ListSection title={copy.list.title} footer={copy.list.footer}>
+          <ListRow label={copy.list.static} value={copy.list.value} />
+          <ListRow
+            label={copy.list.action}
+            description={copy.list.description}
+            tone="accent"
+            onPress={noop}
+          />
+          <ListRow label={copy.list.danger} tone="danger" onPress={noop} />
+          <ListRow label={copy.list.disabled} onPress={noop} disabled />
+          <ListRow
+            label={copy.list.link}
+            trailingIcon="link-external"
+            role="link"
+            onPress={noop}
+          />
+        </ListSection>
       </CatalogSection>
 
       <CatalogSection title={copy.sections.stateView}>

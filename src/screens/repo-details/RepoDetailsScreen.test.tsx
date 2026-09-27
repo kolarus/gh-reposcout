@@ -17,6 +17,9 @@ import {
   type RepoDetails,
 } from '@/entities/repo';
 import { useRateLimit } from '@/shared/api';
+import { haptics } from '@/shared/lib';
+import { savedAvatarStorage } from '@/shared/storage';
+import { expectAccessiblePressables } from '@/test/a11y';
 import { createGate } from '@/test/gate';
 import {
   AVATAR_BYTES,
@@ -26,6 +29,7 @@ import {
   REPO_URL,
   USER_URL,
 } from '@/test/github';
+import { pullToRefresh } from '@/test/pullToRefresh';
 import { server } from '@/test/server';
 import { createTestQueryClient, TestProviders } from '@/test/TestProviders';
 
@@ -272,8 +276,9 @@ describe('RepoDetailsScreen', () => {
     expect(screen.getByRole('header', { name: 'repo-1' })).toBeOnTheScreen();
   });
 
-  it('saves the repo from Details, and unsaves it', async () => {
+  it('saves the repo from Details with a haptic, and unsaves it', async () => {
     serveGitHub();
+    const impact = jest.spyOn(haptics, 'impact');
     const queryClient = createTestQueryClient();
     seedRepoDetail(queryClient, repoOf(repoDto(1)), Date.now());
 
@@ -281,6 +286,7 @@ describe('RepoDetailsScreen', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
     );
+    expect(impact).toHaveBeenCalledTimes(1);
 
     const saved = screen.getByRole('button', {
       name: 'Remove owner-1/repo-1 from Saved',
@@ -295,6 +301,39 @@ describe('RepoDetailsScreen', () => {
     expect(
       screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
     ).not.toBeSelected();
+  });
+
+  it("saving and unsaving don't swap the avatars (a new source would flicker)", async () => {
+    serveGitHub();
+    const queryClient = createTestQueryClient();
+    seedRepoDetail(queryClient, repoOf(repoDto(1)), Date.now());
+    await renderDetails(queryClient, 'owner-1', 'repo-1');
+    await screen.findByText('Profile of owner-1');
+    const avatarSources = () =>
+      screen
+        .getAllByTestId('avatar-image', { includeHiddenElements: true })
+        .map(image => {
+          const source: unknown = image.props['source'];
+          return source;
+        });
+    const before = avatarSources();
+    expect(before).toHaveLength(2);
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
+    );
+    // Saving stores the owner's avatar on the device...
+    await waitFor(() => {
+      expect(savedAvatarStorage.contains('owner-1')).toBe(true);
+    });
+    // ...but the images on screen keep their source.
+    expect(avatarSources()).toEqual(before);
+
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Remove owner-1/repo-1 from Saved' }),
+    );
+    expect(savedAvatarStorage.contains('owner-1')).toBe(false);
+    expect(avatarSources()).toEqual(before);
   });
 
   it('opens the repo and its https website, and shares its link', async () => {
@@ -314,8 +353,10 @@ describe('RepoDetailsScreen', () => {
     await fireEvent.press(
       screen.getByRole('button', { name: 'Website: site.test' }),
     );
+    const impact = jest.spyOn(haptics, 'impact');
     await fireEvent.press(screen.getByRole('button', { name: 'Share' }));
 
+    expect(impact).toHaveBeenCalledTimes(1);
     expect(openURL).toHaveBeenNthCalledWith(1, repo.htmlUrl);
     expect(openURL).toHaveBeenNthCalledWith(2, 'https://site.test');
     await waitFor(() => {
@@ -323,5 +364,36 @@ describe('RepoDetailsScreen', () => {
     });
     openURL.mockRestore();
     share.mockRestore();
+  });
+
+  it('pull-to-refresh refetches the repo only, with a haptic', async () => {
+    const counts = serveGitHub({ repos: { 'owner-1/repo-1': repoDto(1) } });
+    const impact = jest.spyOn(haptics, 'impact');
+    const queryClient = createTestQueryClient();
+    seedRepoDetail(queryClient, repoOf(repoDto(1)), Date.now());
+    await renderDetails(queryClient, 'owner-1', 'repo-1');
+    await screen.findByText('Profile of owner-1');
+
+    await pullToRefresh();
+
+    expect(impact).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+    expect(counts).toEqual({ repo: 1, user: 1 });
+  });
+
+  it('meets the accessibility floor with everything loaded', async () => {
+    serveGitHub();
+    const queryClient = createTestQueryClient();
+    seedRepoDetail(
+      queryClient,
+      repoOf(repoDto(1, { homepage: 'https://site.test' })),
+      Date.now(),
+    );
+    await renderDetails(queryClient, 'owner-1', 'repo-1');
+    await screen.findByText('Profile of owner-1');
+
+    expectAccessiblePressables();
   });
 });

@@ -1,5 +1,5 @@
-import { createContext, use, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
+import { createContext, use, useEffect, type ReactNode } from 'react';
+import { Appearance, useColorScheme } from 'react-native';
 
 import { resolveTheme } from './resolveTheme';
 import { useThemePreference } from './themePreference';
@@ -15,6 +15,13 @@ const ThemeContext = createContext<Theme>(lightTheme);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();
   const preference = useThemePreference(state => state.preference);
+
+  // Native UI (alerts, the keyboard, the share sheet) follows the same choice:
+  // an explicit preference overrides the app's appearance, `system` removes
+  // the override.
+  useEffect(() => {
+    Appearance.setColorScheme(preference === 'system' ? 'auto' : preference);
+  }, [preference]);
 
   return (
     <ThemeContext value={resolveTheme(preference, systemScheme)}>

@@ -9,6 +9,7 @@ export {
   formatSize,
   secondsUntil,
 } from './format';
+export { haptics } from './haptics';
 export { openExternalUrl } from './openUrl';
 export { runAt } from './runAt';
 export { toSafeHttpsUrl } from './safeUrl';

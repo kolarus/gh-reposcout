@@ -2,10 +2,11 @@ import { z } from 'zod';
 
 import { repoSchema, toRepoDetails, type RepoDetails } from '@/entities/repo';
 import { monitoring } from '@/shared/monitoring';
-import { savedReposStorage } from '@/shared/storage';
+import { savedAvatarStorage, savedReposStorage } from '@/shared/storage';
 import { buildRepoDto } from '@/test/github';
 
 import { useSavedRepos } from './savedRepos';
+import { clearSavedRepos } from '../hooks/useSaved';
 
 const repo = (
   id: number,
@@ -50,6 +51,23 @@ describe('useSavedRepos', () => {
     expect(state.order).toEqual([2]);
     expect(state.byId['1']).toBeUndefined();
     expect(state.idByFullName).toEqual({ 'owner-2/repo-2': 2 });
+  });
+
+  it('clears every saved repo and every stored avatar at once', () => {
+    const { save } = useSavedRepos.getState();
+    save(repo(1));
+    save(repo(2));
+    savedAvatarStorage.set('owner-1', 'data:image/png;base64,AA');
+    savedAvatarStorage.set('owner-2', 'data:image/png;base64,AA');
+
+    clearSavedRepos();
+
+    expect(useSavedRepos.getState()).toMatchObject({
+      byId: {},
+      order: [],
+      idByFullName: {},
+    });
+    expect(savedAvatarStorage.getAllKeys()).toEqual([]);
   });
 
   it('follows newer data for a saved repo, and ignores older or unsaved', () => {

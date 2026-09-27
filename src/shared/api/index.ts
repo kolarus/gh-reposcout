@@ -14,3 +14,4 @@ export {
   type ApiError,
 } from './github/errors';
 export { useRateLimit } from './github/rateLimit';
+export { persistedQueryMeta } from './queryMeta';

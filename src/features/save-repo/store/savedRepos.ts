@@ -21,6 +21,7 @@ interface SavedReposState extends SavedRepos {
   /** Newer data for a saved repo: its snapshot quietly follows (ADR-0020). */
   refresh: (repo: RepoDetails, fetchedAt: number) => void;
   setOwner: (repoId: number, owner: OwnerProfile) => void;
+  clear: () => void;
 }
 
 const same = (a: unknown, b: unknown) =>
@@ -112,6 +113,9 @@ export const useSavedRepos = create<SavedReposState>()(
             idByFullName: { ...others, [fullNameKey(repo.fullName)]: repo.id },
           };
         });
+      },
+      clear: () => {
+        set({ byId: {}, order: [], idByFullName: {} });
       },
       setOwner: (repoId, owner) => {
         set(state => {

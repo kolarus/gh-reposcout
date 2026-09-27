@@ -4,6 +4,8 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 
+import { persistedQueryMeta } from '@/shared/api';
+
 import { searchKeys } from './searchKeys';
 import { searchRepositories } from '../api/searchRepositories';
 import type { SearchParams } from '../model/searchParams';
@@ -37,6 +39,7 @@ export const searchQueryOptions = (params: SearchParams | undefined) =>
         : SEARCH_STALE_TIME_MS,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    meta: persistedQueryMeta,
   });
 
 /**

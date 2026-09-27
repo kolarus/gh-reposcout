@@ -3,6 +3,9 @@
  * future i18n library replaces this module, not its callers.
  */
 export const strings = {
+  common: {
+    cancel: 'Cancel',
+  },
   tabs: {
     search: 'Search',
     saved: 'Saved',
@@ -106,11 +109,6 @@ export const strings = {
     save: (fullName: string) => `Save ${fullName}`,
     remove: (fullName: string) => `Remove ${fullName} from Saved`,
   },
-  // Phase 1b placeholders; replaced by the real screens in Phase 4.
-  placeholders: {
-    settingsTitle: 'Settings',
-    settingsMessage: 'Theme and data settings land in Phase 4.',
-  },
   repoDetails: {
     invalidTitle: 'Repository not found',
     invalidMessage: "This link doesn't point to a valid GitHub repository.",
@@ -165,6 +163,49 @@ export const strings = {
     notSaved: "Owner details weren't saved with this repository.",
     retry: 'Retry',
     openProfile: (login: string) => `Open ${login} on GitHub`,
+  },
+  settings: {
+    appearance: {
+      title: 'Appearance',
+      theme: 'Theme',
+      system: 'System',
+      light: 'Light',
+      dark: 'Dark',
+    },
+    data: {
+      title: 'Data on this device',
+      none: 'None',
+      cache: 'Clear cached results',
+      cacheDescription:
+        'Search results and repository details kept for offline use.',
+      cacheConfirmTitle: 'Clear cached results?',
+      cacheConfirmMessage:
+        "They load again from GitHub when needed. Saved repositories aren't affected.",
+      recent: 'Clear recent searches',
+      recentCount: (count: number) =>
+        count === 1 ? '1 search' : `${String(count)} searches`,
+      recentConfirmTitle: 'Clear recent searches?',
+      recentConfirmMessage: 'The list of recent searches will be emptied.',
+      saved: 'Remove saved repositories',
+      savedCount: (count: number) =>
+        count === 1 ? '1 repository' : `${String(count)} repositories`,
+      savedConfirmTitle: 'Remove all saved repositories?',
+      savedConfirmMessage:
+        "They'll no longer be available offline. This can't be undone.",
+      clear: 'Clear',
+      remove: 'Remove',
+    },
+    about: {
+      title: 'About',
+      version: 'Version',
+      sourceCode: 'Source code',
+      decisions: 'Architecture decisions',
+      footer:
+        'Repository data comes from the public GitHub REST API. Not affiliated with or endorsed by GitHub, Inc.',
+    },
+    developer: {
+      title: 'Developer',
+    },
   },
   dev: {
     uiCatalog: 'UI catalog',
