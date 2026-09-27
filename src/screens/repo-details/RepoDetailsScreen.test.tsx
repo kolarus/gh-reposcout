@@ -18,7 +18,14 @@ import {
 } from '@/entities/repo';
 import { useRateLimit } from '@/shared/api';
 import { createGate } from '@/test/gate';
-import { buildRepoDto, buildUserDto, REPO_URL, USER_URL } from '@/test/github';
+import {
+  AVATAR_BYTES,
+  AVATAR_URL,
+  buildRepoDto,
+  buildUserDto,
+  REPO_URL,
+  USER_URL,
+} from '@/test/github';
 import { server } from '@/test/server';
 import { createTestQueryClient, TestProviders } from '@/test/TestProviders';
 
@@ -60,6 +67,14 @@ function serveGitHub({
         ? HttpResponse.json({ message: 'Not Found' }, { status: 404 })
         : HttpResponse.json(dto);
     }),
+    // The avatar CDN (saving a repo stores its owner's avatar).
+    http.get(
+      AVATAR_URL,
+      () =>
+        new HttpResponse(AVATAR_BYTES, {
+          headers: { 'content-type': 'image/png' },
+        }),
+    ),
     http.get(USER_URL, ({ params }) => {
       counts.user += 1;
       const login = String(params['login']);
@@ -255,6 +270,31 @@ describe('RepoDetailsScreen', () => {
       ),
     ).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: 'repo-1' })).toBeOnTheScreen();
+  });
+
+  it('saves the repo from Details, and unsaves it', async () => {
+    serveGitHub();
+    const queryClient = createTestQueryClient();
+    seedRepoDetail(queryClient, repoOf(repoDto(1)), Date.now());
+
+    await renderDetails(queryClient, 'owner-1', 'repo-1');
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
+    );
+
+    const saved = screen.getByRole('button', {
+      name: 'Remove owner-1/repo-1 from Saved',
+    });
+    expect(saved).toBeSelected();
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+
+    // Leave the shared saved-repos store as the other tests expect it.
+    await fireEvent.press(saved);
+    expect(
+      screen.getByRole('button', { name: 'Save owner-1/repo-1' }),
+    ).not.toBeSelected();
   });
 
   it('opens the repo and its https website, and shares its link', async () => {

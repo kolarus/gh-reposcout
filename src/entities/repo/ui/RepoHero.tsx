@@ -12,13 +12,15 @@ interface RepoHeroProps {
   repo: RepoDetails;
   /** Opens a link (the homepage); the screen decides how. */
   onOpenUrl: (url: string) => void;
+  /** Overrides the avatar, e.g. a saved copy that works offline (ADR-0020). */
+  avatarUri?: string | undefined;
 }
 
 const hostOf = (url: string) =>
   url.replace(/^https:\/\//i, '').replace(/\/$/, '');
 
 /** The top of Details: owner and name, full description, website, topics. */
-export function RepoHero({ repo, onOpenUrl }: RepoHeroProps) {
+export function RepoHero({ repo, onOpenUrl, avatarUri }: RepoHeroProps) {
   const theme = useTheme();
   const styles = useStyles();
   const avatarPx = theme.avatarSize.lg * PixelRatio.get();
@@ -28,7 +30,7 @@ export function RepoHero({ repo, onOpenUrl }: RepoHeroProps) {
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Avatar
-          uri={sizedAvatarUrl(repo.owner.avatarUrl, avatarPx)}
+          uri={avatarUri ?? sizedAvatarUrl(repo.owner.avatarUrl, avatarPx)}
           name={repo.owner.login}
           size="lg"
         />

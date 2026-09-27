@@ -31,18 +31,19 @@ yarn android   # or: yarn ios
 
 ## Scripts
 
-| Command                                                              | What it does                                                                                                                  |
-| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `yarn android` / `yarn ios`                                          | Build and run the debug app                                                                                                   |
-| `yarn start`                                                         | Start Metro                                                                                                                   |
-| `yarn validate`                                                      | Everything CI checks: typecheck, lint, formatting, architecture/docs/version checks, release bundle, knip, script tests, Jest |
-| `yarn test`                                                          | Jest (app) · `yarn test:scripts` for the repo scripts                                                                         |
-| `yarn lint` · `yarn typecheck` · `yarn format`                       | Individual checks / formatting                                                                                                |
-| `yarn check:architecture` · `yarn check:docs` · `yarn check:version` | Structural, documentation and version checks ([ADR-0022](docs/adr/0022-architecture-enforcement.md))                          |
-| `yarn check:bundle`                                                  | Release Metro bundle for Android and iOS: catches build problems Jest can't ([ADR-0013](docs/adr/0013-testing-strategy.md))   |
-| `yarn arch:graph`                                                    | Regenerate the [architecture graph](docs/architecture-graph.md) from the real imports                                         |
-| `yarn release:prepare <x.y.z>`                                       | Set the app version everywhere ([ADR-0016](docs/adr/0016-ci-cd-and-release.md))                                               |
-| `yarn pods`                                                          | Install CocoaPods manually                                                                                                    |
+| Command                                                              | What it does                                                                                                                                                                       |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `yarn android` / `yarn ios`                                          | Build and run the debug app                                                                                                                                                        |
+| `yarn android:release`                                               | Build, install and launch the release variant (JS bundled in, no Metro; signed with the debug key unless the upload key is set up, [ADR-0016](docs/adr/0016-ci-cd-and-release.md)) |
+| `yarn start`                                                         | Start Metro                                                                                                                                                                        |
+| `yarn validate`                                                      | Everything CI checks: typecheck, lint, formatting, architecture/docs/version checks, release bundle, knip, script tests, Jest                                                      |
+| `yarn test`                                                          | Jest (app) · `yarn test:scripts` for the repo scripts                                                                                                                              |
+| `yarn lint` · `yarn typecheck` · `yarn format`                       | Individual checks / formatting                                                                                                                                                     |
+| `yarn check:architecture` · `yarn check:docs` · `yarn check:version` | Structural, documentation and version checks ([ADR-0022](docs/adr/0022-architecture-enforcement.md))                                                                               |
+| `yarn check:bundle`                                                  | Release Metro bundle for Android and iOS: catches build problems Jest can't ([ADR-0013](docs/adr/0013-testing-strategy.md))                                                        |
+| `yarn arch:graph`                                                    | Regenerate the [architecture graph](docs/architecture-graph.md) from the real imports                                                                                              |
+| `yarn release:prepare <x.y.z>`                                       | Set the app version everywhere ([ADR-0016](docs/adr/0016-ci-cd-and-release.md))                                                                                                    |
+| `yarn pods`                                                          | Install CocoaPods manually                                                                                                                                                         |
 
 ## Architecture
 

@@ -1,10 +1,16 @@
 import type { OwnerProfile, OwnerSection } from '@/entities/owner';
 import type { RepoDetails } from '@/entities/repo';
+import type { SavedRepoSnapshot } from '@/features/save-repo';
 import type { ApiError } from '@/shared/api';
 
-/** A strip above the repo when a refresh didn't work but data is on screen. */
+/** A strip above the repo when what's shown isn't fresh from GitHub. */
 export type RepoNotice =
-  { kind: 'rate-limited'; resetAt: string } | { kind: 'refresh-failed' };
+  | { kind: 'rate-limited'; resetAt: string }
+  | { kind: 'refresh-failed' }
+  /** The saved snapshot stands in: offline, or GitHub couldn't be reached. */
+  | { kind: 'saved-copy'; refreshedAt: string }
+  /** GitHub says the repo is gone; the saved snapshot is all that's left. */
+  | { kind: 'gone' };
 
 /** What Details shows. The screen switches over `kind` exhaustively. */
 export type RepoDetailsView =
@@ -16,26 +22,44 @@ export type RepoDetailsView =
   | { kind: 'error'; error: ApiError };
 
 /**
- * One decision, in priority order (ADR-0020's table, before saved snapshots
- * join it in Phase 3b):
- * 1. GitHub says the repo is gone: "not found", even over data copied from an
- *    earlier search, which is now out of date.
- * 2. Any repo data (live, or copied from search) is shown; a failed refresh
- *    only adds a notice.
- * 3. Without data: rate limit, then other errors, then offline, then loading.
+ * One decision, in priority order (ADR-0020's table):
+ * 1. GitHub says the repo is gone: the saved snapshot with a notice, or "not
+ *    found". Data copied from an earlier search is out of date by then.
+ * 2. Data in the cache (live, or copied from search) is shown; a failed
+ *    refresh only adds a notice.
+ * 3. Otherwise the saved snapshot stands in: silently while the live data
+ *    loads, with a "saved copy" notice offline or when GitHub can't be
+ *    reached, and with the error's notice for anything else.
+ * 4. Without either: rate limit, then other errors, then offline, then
+ *    loading.
  */
 export function resolveRepoDetailsView({
   repo,
+  snapshot,
   error,
   isPaused,
 }: {
   repo: RepoDetails | undefined;
+  snapshot: SavedRepoSnapshot | undefined;
   error: ApiError | undefined;
   isPaused: boolean;
 }): RepoDetailsView {
-  if (error?.kind === 'not-found') return { kind: 'not-found' };
+  if (error?.kind === 'not-found') {
+    return snapshot === undefined
+      ? { kind: 'not-found' }
+      : { kind: 'repo', repo: snapshot.repo, notice: { kind: 'gone' } };
+  }
   if (repo !== undefined) {
     return { kind: 'repo', repo, notice: noticeFor(error) };
+  }
+  if (snapshot !== undefined) {
+    const savedCopy = {
+      kind: 'saved-copy',
+      refreshedAt: snapshot.refreshedAt,
+    } as const;
+    const notice =
+      isPaused || error?.kind === 'network' ? savedCopy : noticeFor(error);
+    return { kind: 'repo', repo: snapshot.repo, notice };
   }
   if (error?.kind === 'rate-limited') {
     return { kind: 'rate-limited', resetAt: error.resetAt };
@@ -54,23 +78,29 @@ const noticeFor = (error: ApiError | undefined): RepoNotice | undefined => {
 };
 
 /**
- * The owner card's body: a loaded profile always wins; then its errors; then
- * the core-budget reserve holding it back (ADR-0012), unless the user asked;
- * then offline; then loading.
+ * The owner card's body: a loaded profile always wins, then a saved one; then
+ * errors; then the core-budget reserve holding it back (ADR-0012), unless the
+ * user asked; then offline (for a saved repo: "not saved"); then loading.
  */
 export function resolveOwnerSection({
   profile,
+  savedProfile,
+  isSaved,
   error,
   isPaused,
   heldBackUntil,
 }: {
   profile: OwnerProfile | undefined;
+  /** From the saved snapshot, if the repo is saved with its owner. */
+  savedProfile: OwnerProfile | undefined;
+  isSaved: boolean;
   error: ApiError | undefined;
   isPaused: boolean;
   /** Reset time while the reserve holds optional requests back. */
   heldBackUntil: string | undefined;
 }): OwnerSection {
-  if (profile !== undefined) return { kind: 'profile', profile };
+  const shown = profile ?? savedProfile;
+  if (shown !== undefined) return { kind: 'profile', profile: shown };
   if (error?.kind === 'rate-limited') {
     return { kind: 'rate-limited', resetAt: error.resetAt };
   }
@@ -78,6 +108,6 @@ export function resolveOwnerSection({
   if (heldBackUntil !== undefined) {
     return { kind: 'paused', resetAt: heldBackUntil };
   }
-  if (isPaused) return { kind: 'offline' };
+  if (isPaused) return isSaved ? { kind: 'not-saved' } : { kind: 'offline' };
   return { kind: 'loading' };
 }

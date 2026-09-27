@@ -80,3 +80,10 @@ export function buildUserDto(
     ...overrides,
   };
 }
+
+/** MSW pattern for GitHub's avatar CDN (not the API: no rate limit). */
+export const AVATAR_URL = 'https://avatars.githubusercontent.com/*';
+
+/** A tiny stand-in avatar: 3 bytes of "PNG", enough to check the data URI. */
+export const AVATAR_BYTES = new Uint8Array([0x89, 0x50, 0x4e]);
+export const AVATAR_DATA_URI = 'data:image/png;base64,iVBO';

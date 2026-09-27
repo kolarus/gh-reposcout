@@ -287,7 +287,7 @@ describe('SearchScreen', () => {
     await renderScreen();
 
     expect(
-      screen.getByText("You're offline. Showing results loaded earlier."),
+      screen.getByText("You're offline. Showing what was loaded earlier."),
     ).toBeOnTheScreen();
 
     await typeQuery('react');

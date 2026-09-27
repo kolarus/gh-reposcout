@@ -21,7 +21,7 @@ Separate instances, so each stays small and has a clear purpose:
 | `saved`         | saved-repo snapshots (ADR-0020)                   | until the user removes them         |
 | `saved-avatars` | avatar data URIs for saved repos (ADR-0020)       | reference-counted                   |
 
-Instances are created with v4's `createMMKV({ id })` in `shared/storage`. Under Jest, MMKV detects the test environment and returns an in-memory store by itself, so persistence tests run the real code paths (ADR-0013).
+Instances are created with v4's `createMMKV({ id })` in `shared/storage`; `app`, `saved` and `saved-avatars` exist so far, `query-cache` arrives with query persistence (Phase 4). Values kept outside a Zustand store (saved avatars) are read with `useStoredString`, which re-renders on MMKV's change events. Under Jest, MMKV detects the test environment and returns an in-memory store by itself, so persistence tests run the real code paths (ADR-0013).
 
 **Zustand persistence:** the `persist` middleware with a _synchronous_ MMKV adapter (`toStateStorage` in `shared/storage`), so stores load before the first render with no loading flash.
 

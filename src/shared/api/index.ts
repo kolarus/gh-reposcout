@@ -4,7 +4,8 @@
  * (ADR-0022).
  */
 export { sizedAvatarUrl } from './github/avatarUrl';
-export { useCoreBudgetLow } from './github/budget';
+export { fetchAsDataUri } from './fetchAsDataUri';
+export { isCoreBudgetLow, useCoreBudgetLow } from './github/budget';
 export { githubClient } from './github/client';
 export {
   ApiRequestError,

@@ -2,6 +2,11 @@ import { useState } from 'react';
 
 import { useOwner } from '@/entities/owner';
 import { useRepository, type RepoRef } from '@/entities/repo';
+import {
+  useSavedAvatar,
+  useSavedSnapshot,
+  useSyncSnapshot,
+} from '@/features/save-repo';
 import { toApiError, useCoreBudgetLow } from '@/shared/api';
 
 import {
@@ -14,14 +19,17 @@ const apiErrorOf = (error: Error | null) =>
 
 /**
  * Everything Details needs, combined in the screen layer (ADR-0005, ADR-0020):
- * the repo (usually copied from search, ADR-0007), then its owner's profile,
- * which waits while the core budget is at its reserve unless the user asks
- * for it (ADR-0012).
+ * the repo (usually copied from search, ADR-0007) or its saved snapshot,
+ * then its owner's profile, which waits while the core budget is at its
+ * reserve unless the user asks for it (ADR-0012). A saved repo's snapshot
+ * quietly follows the live data.
  */
 export function useRepoDetailsView(ref: RepoRef) {
   const repoQuery = useRepository(ref);
+  const snapshot = useSavedSnapshot(ref);
   const view = resolveRepoDetailsView({
     repo: repoQuery.data,
+    snapshot,
     error: apiErrorOf(repoQuery.error),
     isPaused: repoQuery.isPaused,
   });
@@ -36,12 +44,23 @@ export function useRepoDetailsView(ref: RepoRef) {
     enabled: heldBackUntil === undefined,
   });
 
+  useSyncSnapshot({
+    repo: repoQuery.data,
+    fetchedAt: repoQuery.dataUpdatedAt,
+    owner: ownerQuery.data,
+  });
+  const savedAvatarUri = useSavedAvatar(repo?.owner.login);
+
   const [isRefreshing, setRefreshing] = useState(false);
 
   return {
     view,
+    /** The owner's avatar saved on the device, if the repo is saved. */
+    savedAvatarUri,
     ownerSection: resolveOwnerSection({
       profile: ownerQuery.data,
+      savedProfile: snapshot?.owner,
+      isSaved: snapshot !== undefined,
       error: apiErrorOf(ownerQuery.error),
       isPaused: ownerQuery.isPaused,
       heldBackUntil,

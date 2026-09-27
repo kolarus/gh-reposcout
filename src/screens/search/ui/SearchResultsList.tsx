@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { RefreshControl, View } from 'react-native';
 
 import { RepoCard, type RepoDetails } from '@/entities/repo';
+import { SaveToggle } from '@/features/save-repo';
 import {
   reachedResultCap,
   ResultsHeader,
@@ -70,6 +71,8 @@ export function SearchResultsList({
             now={now}
             onPress={onPressRepo}
             disabled={isStale}
+            // A slot (ADR-0005): the repo entity doesn't know about saving.
+            accessory={<SaveToggle repo={item} />}
           />
         )}
         extraData={rowState}

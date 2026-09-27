@@ -32,6 +32,16 @@ const UiCatalogScreen = lazy(() =>
 
 const useIsDevelopment = () => __DEV__;
 
+// The static API types `getId`'s params loosely, so narrow them here.
+const repoScreenId = (params: object | undefined): string | undefined =>
+  params !== undefined &&
+  'owner' in params &&
+  'name' in params &&
+  typeof params.owner === 'string' &&
+  typeof params.name === 'string'
+    ? `${params.owner}/${params.name}`.toLowerCase()
+    : undefined;
+
 const Tabs = createBottomTabNavigator({
   screenLayout: ScreenLayout,
   screens: {
@@ -70,6 +80,9 @@ export const RootStack = createNativeStackNavigator({
     },
     RepoDetails: {
       screen: RepoDetailsScreen,
+      // One screen per repo: opening another repo (a link, a saved repo)
+      // stacks on top instead of replacing the open one, so Back returns to it.
+      getId: ({ params }) => repoScreenId(params),
       options: { title: '' },
       linking: 'repo/:owner/:name',
     },

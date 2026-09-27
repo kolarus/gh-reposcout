@@ -20,6 +20,8 @@ interface RepoCardProps {
   /** Current time (epoch ms) for "Updated 3d ago"; passed in so rows stay pure. */
   now: number;
   onPress: (repo: RepoDetails) => void;
+  /** Overrides the avatar, e.g. a saved copy that works offline (ADR-0020). */
+  avatarUri?: string | undefined;
   /** Not pressable, e.g. while the list shows a previous search's results. */
   disabled?: boolean;
   /** Slot for feature UI such as the save toggle (ADR-0005). */
@@ -35,6 +37,7 @@ export function RepoCard({
   repo,
   now,
   onPress,
+  avatarUri,
   disabled = false,
   accessory,
 }: RepoCardProps) {
@@ -65,7 +68,7 @@ export function RepoCard({
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}
     >
       <Avatar
-        uri={sizedAvatarUrl(repo.owner.avatarUrl, avatarPx)}
+        uri={avatarUri ?? sizedAvatarUrl(repo.owner.avatarUrl, avatarPx)}
         name={repo.owner.login}
         size="md"
       />

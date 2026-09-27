@@ -28,7 +28,7 @@ export const strings = {
     tryAgain: 'Try again',
   },
   offline: {
-    banner: "You're offline. Showing results loaded earlier.",
+    banner: "You're offline. Showing what was loaded earlier.",
   },
   // Failures any GitHub request can have; screen-specific ones live with the screen.
   api: {
@@ -95,10 +95,19 @@ export const strings = {
     starsLabel: (formatted: string) => `${formatted} stars`,
     cardLabel: (parts: readonly string[]) => parts.join(', '),
   },
-  // Phase 1b placeholders; replaced by the real screens in Phases 3–4.
+  saved: {
+    count: (count: number) =>
+      count === 1
+        ? '1 saved repository'
+        : `${String(count)} saved repositories`,
+    emptyTitle: 'No saved repositories yet',
+    emptyMessage:
+      'Tap the bookmark on any repository to keep it here. Saved repositories are available offline.',
+    save: (fullName: string) => `Save ${fullName}`,
+    remove: (fullName: string) => `Remove ${fullName} from Saved`,
+  },
+  // Phase 1b placeholders; replaced by the real screens in Phase 4.
   placeholders: {
-    savedTitle: 'No saved repositories yet',
-    savedMessage: 'Saved repositories will appear here and work offline.',
     settingsTitle: 'Settings',
     settingsMessage: 'Theme and data settings land in Phase 4.',
   },
@@ -117,6 +126,8 @@ export const strings = {
     rateLimitedNotice: (minutes: string) =>
       `GitHub's hourly limit is used up. Showing what was loaded earlier; it refreshes in ${minutes}.`,
     refreshFailed: "Couldn't refresh. Showing what was loaded earlier.",
+    savedCopy: (relative: string) => `Saved copy · updated ${relative}`,
+    gone: 'No longer available on GitHub. Showing your saved copy.',
     archived: 'This repository is archived and read-only.',
     homepage: 'Website',
     openOnGitHub: 'Open on GitHub',
@@ -151,6 +162,7 @@ export const strings = {
       `GitHub's hourly limit is used up. Owner details load in ${minutes}.`,
     errorMessage: "Couldn't load owner details.",
     offlineMessage: 'Owner details load once you are back online.',
+    notSaved: "Owner details weren't saved with this repository.",
     retry: 'Retry',
     openProfile: (login: string) => `Open ${login} on GitHub`,
   },

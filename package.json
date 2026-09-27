@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android --active-arch-only --appIdSuffix debug",
+    "android:release": "react-native run-android --mode release --active-arch-only",
     "ios": "react-native run-ios",
     "pods": "cd ios && bundle install && bundle exec pod install",
     "start": "react-native start",

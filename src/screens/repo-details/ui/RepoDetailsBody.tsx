@@ -8,11 +8,13 @@ import {
   type RepoRef,
 } from '@/entities/repo';
 import { RepoActions } from '@/features/repo-actions';
+import { SaveToggle } from '@/features/save-repo';
 import type { ApiError } from '@/shared/api';
 import { strings } from '@/shared/i18n';
 import {
   assertNever,
   formatMinutesUntil,
+  formatRelativeTime,
   openExternalUrl,
   useNow,
 } from '@/shared/lib';
@@ -96,6 +98,18 @@ export function RepoDetailsBody({ repoRef }: { repoRef: RepoRef }) {
             action={{ label: strings.api.tryAgain, onPress: details.retry }}
           />
         );
+      case 'saved-copy':
+        return (
+          <Banner
+            tone="info"
+            icon="bookmark-filled"
+            message={copy.savedCopy(
+              formatRelativeTime(notice.refreshedAt, new Date(now)),
+            )}
+          />
+        );
+      case 'gone':
+        return <Banner tone="warning" icon="alert" message={copy.gone} />;
       default:
         return assertNever(notice);
     }
@@ -165,8 +179,19 @@ export function RepoDetailsBody({ repoRef }: { repoRef: RepoRef }) {
                 />
               }
             >
-              <RepoHero repo={repo} onOpenUrl={openUrl} />
-              <RepoActions repo={repo} />
+              <RepoHero
+                repo={repo}
+                onOpenUrl={openUrl}
+                avatarUri={details.savedAvatarUri}
+              />
+              <View style={styles.actions}>
+                <View style={styles.mainActions}>
+                  <RepoActions repo={repo} />
+                </View>
+                <View style={styles.saveBox}>
+                  <SaveToggle repo={repo} />
+                </View>
+              </View>
               <RepoStats repo={repo} now={now} />
               {/* A per-section boundary (ADR-0018): if the owner card itself
                   breaks, the rest of Details stays up. */}
@@ -183,6 +208,7 @@ export function RepoDetailsBody({ repoRef }: { repoRef: RepoRef }) {
                 <OwnerCard
                   login={repo.owner.login}
                   avatarUrl={repo.owner.avatarUrl}
+                  savedAvatarUri={details.savedAvatarUri}
                   kind={repo.owner.kind}
                   section={details.ownerSection}
                   onLoadNow={details.loadOwner}

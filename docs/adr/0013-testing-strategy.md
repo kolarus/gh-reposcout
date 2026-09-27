@@ -62,6 +62,8 @@ As of 2026-09-26:
 - `TestProviders` / `createWrapper(queryClient)`: theme and a query client with retries off (the retry policy has its own tests), for screens and hooks.
 - `github.ts`: `buildRepoDto(id, overrides)`, `buildSearchPage({ page, total })` and `buildUserDto(login, overrides)`, built from real captured responses (`fixtures/search-repositories.json`, `repository.json`, `user.json`), which the contract tests also parse as is. MSW path patterns `SEARCH_URL`, `REPO_URL`, `USER_URL`.
 - `gate.ts`: `createGate()` holds a fake response until the test opens it (see "No sleeping in tests").
+- **Screens test composition.** A screen may use a feature only through its public API, test files included (ADR-0005). When a screen test needs a feature in a given state (such as a saved snapshot), it stubs that feature's hook with a partial `jest.mock`; the feature's own tests cover its store and actions for real.
+- **Render counts** are checked with React's `Profiler` (`onRender`), e.g. toggling one saved repo re-renders only that repo's toggle.
 - Timer-dependent behaviour (debounce, countdown, rate-limit resume, staleness) uses Jest's fake timers; MSW works with them. Screen tests run on fake timers throughout, and flush what's still scheduled inside `act()` before unmounting, so no update lands after a test.
 
 **What Jest can't catch:** Jest loads each package's Node build, while Metro bundles the React Native build, so a syntax the app's Babel setup doesn't handle can pass every test and still break the app. (zod v4's `export * as` did exactly that.) `yarn check:bundle` builds a release bundle for both platforms, about 10 seconds, and is part of `yarn validate`.

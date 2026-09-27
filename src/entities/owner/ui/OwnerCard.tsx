@@ -17,12 +17,16 @@ export type OwnerSection =
   | { kind: 'paused'; resetAt: string }
   | { kind: 'rate-limited'; resetAt: string }
   | { kind: 'error' }
-  | { kind: 'offline' };
+  | { kind: 'offline' }
+  /** A saved repo shown offline, saved before its owner's profile loaded. */
+  | { kind: 'not-saved' };
 
 interface OwnerCardProps {
   /** What the repo already says about its owner: shown at once. */
   login: string;
   avatarUrl: string;
+  /** Overrides the avatar, e.g. a saved copy that works offline (ADR-0020). */
+  savedAvatarUri?: string | undefined;
   kind: 'user' | 'organization';
   section: OwnerSection;
   onLoadNow: () => void;
@@ -40,6 +44,7 @@ const copy = strings.owner;
 export function OwnerCard({
   login,
   avatarUrl,
+  savedAvatarUri,
   kind,
   section,
   onLoadNow,
@@ -102,6 +107,12 @@ export function OwnerCard({
             {copy.offlineMessage}
           </Text>
         );
+      case 'not-saved':
+        return (
+          <Text variant="caption" tone="secondary">
+            {copy.notSaved}
+          </Text>
+        );
     }
   })();
 
@@ -116,7 +127,7 @@ export function OwnerCard({
         style={({ pressed }) => [styles.header, pressed && styles.pressed]}
       >
         <Avatar
-          uri={sizedAvatarUrl(avatarUrl, avatarPx)}
+          uri={savedAvatarUri ?? sizedAvatarUrl(avatarUrl, avatarPx)}
           name={login}
           size="md"
         />

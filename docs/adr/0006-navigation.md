@@ -27,6 +27,7 @@ Facts as of 2026-09-26: React Navigation **8.0 is still pre-release**. Its alpha
   RepoDetails sits on the root stack, so it covers the tab bar and is reached the same way from any tab or deep link.
 
 - **Params carry only identifiers** (`owner`, `name`), never objects. Data comes from the query cache: seeded from search results (ADR-0007) or from saved snapshots (ADR-0020). Deep links, state restoration and in-app navigation therefore behave the same.
+- **One Details screen per repo:** `RepoDetails` has a `getId` of the lowercased `owner/name`, so opening another repo (a link, a saved repo) stacks a new screen instead of replacing the open one, and Back returns to it.
 - **Deep links:** `reposcout://repo/:owner/:name`, via an Android intent filter and an iOS URL scheme. Params are validated against GitHub's login and repo-name patterns before any request; invalid ones show the not-found state.
   - The linking config sets the tabs as the initial route, so a deep-linked Details screen has a working back button to Search.
   - The splash screen is hidden in `NavigationContainer`'s `onReady`, not in a specific screen. On a deep-link cold start the first screen is Details, not Search.

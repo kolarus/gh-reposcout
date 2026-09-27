@@ -32,19 +32,20 @@ The project owner wants users to **save repos locally and view them offline**, w
 - `SavedRepoSnapshotV1 = { version: 1, savedAt, refreshedAt, repo: RepoDetails, owner?: OwnerDetails }`. It holds domain types, never API shapes, and dates are ISO strings.
 - **Store shape:** `{ byId: Record<RepoId, Snapshot>, order: RepoId[], idByFullName: Record<string, RepoId> }`.
   - Keyed by the numeric repo `id`, which survives renames.
-  - `idByFullName` (lowercased) lets Details look a snapshot up from its route params (`owner`, `name`), which carry no id.
+  - `idByFullName` (lowercased) lets Details look a snapshot up from its route params (`owner`, `name`), which carry no id. It isn't persisted: loading rebuilds it from the snapshots, so it can't drift from them.
+- **Storage format:** JSON can't hold `undefined`, so the store writes it as `null` and the snapshot schema reads it back as `undefined`. The schemas are checked against the domain types (`satisfies`), so a field added to `RepoDetails` or `OwnerProfile` fails to compile until the snapshot schema has it.
   - `useIsSaved(id)` is an O(1) selector, so a list row re-renders only when _its own_ saved flag changes.
 - **Loading from disk:** each entry is validated with Zod. Invalid entries are dropped and logged, never crashing the app.
 - **Upgrades:** Zustand `persist` `version` / `migrate` handles future changes to the snapshot shape.
 - **Complete snapshots on save, within budget:**
   - Search results carry every repo field Details shows (ADR-0012), so a snapshot saved from search is complete except for the owner profile.
   - If the device is online and the core budget is above the reserve (ADR-0012), saving also fetches the owner profile in the background, using `entities` query options (features may import entities). A snapshot saved from a deep-linked repo already has everything the screen loaded.
-  - Otherwise it's completed on the next online Details view (`useSyncSnapshot`).
+  - Otherwise it's completed on the next online Details view (`useSyncSnapshot`), which also refreshes a saved repo's data when Details has newer data, and retries a missing avatar.
   - Offline Details without owner data says "owner details weren't saved" in that section.
 
 **Avatars:**
 
-1. On save, download the sized avatar (`s=<px>`) as a **data URI** with `shared/api/fetchAsDataUri` (fetch → blob → `FileReader.readAsDataURL`). The helper lives in `shared/api` because `fetch` is only allowed there (ADR-0015).
+1. On save, download the sized avatar (`s=<px>`, at the Details hero's size) as a **data URI** with `shared/api/fetchAsDataUri`. It reads the response as bytes and base64-encodes them itself, which behaves the same on Hermes and in Jest (Jest has no `FileReader`). The helper lives in `shared/api` because `fetch` is only allowed there (ADR-0015).
 2. Store it in MMKV `saved-avatars`, **keyed by owner login**, so many repos from one owner share one image (about 5–15 KB each).
 3. Load it lazily per row; it's never held in the store.
 4. If the download fails, the save still succeeds: show an initials fallback and retry on the next online view.
@@ -77,9 +78,9 @@ screens/repo-details/useRepoDetailsView.ts
 
 **UI:**
 
-- `SaveToggle` on each row and in the Details header, with a haptic and an accessibility role and label. A spoken announcement is part of the deferred accessibility pass.
+- `SaveToggle` (a bookmark) on each result row, through `RepoCard`'s `accessory` slot (ADR-0005), and next to Details' Open on GitHub / Share. Not in the navigation header: the toggle then needs no navigation wiring, and it stays where the other actions are. It has an accessibility role, label and selected state; the haptic arrives with the other haptics (Phase 4), and a spoken announcement is part of the deferred accessibility pass.
 - A Saved tab (sorted by date saved), with a remove action and an empty state explaining offline availability. An undo toast is in the improvements backlog.
-- Settings → "Clear saved repos", with a confirmation.
+- Settings → "Clear saved repos", with a confirmation (Phase 4, with the Settings screen).
 
 ## Alternatives considered
 
