@@ -10,29 +10,40 @@ The brief evaluates "60 FPS scrolling, fast startup, low memory" and asks for "p
 
 - **Flipper is deprecated** and has been removed from React Native templates since 0.74. React Native 0.87 also removed the standalone react-devtools connection in favour of **React Native DevTools**.
 - The project owner chose to measure on the **emulator and simulator only**. Absolute numbers from emulators don't represent real devices, because they depend on the host machine's CPU and GPU.
+- **Debug-only tools.** React Native DevTools and the Perf Monitor overlay only connect to debug builds, where JavaScript runs unoptimised (development checks, no minification). Their numbers understate the app. Android's system tools (`gfxinfo`, the GPU rendering bars, `meminfo`, `am start`) and Android Studio's profilers work on release builds, the last only if the build is marked `profileable`.
 
 ## Decision
 
-- **Always measure release builds**, and record the conditions: emulator or simulator image, host machine, OS version, build variant, network.
-- **Report relative evidence, not absolute claims:**
-  - dropped-frame percentage
-  - render counts
-  - memory growth after scrolling
-  - request counts
+- **Every number comes from a release build.** Record the conditions: emulator or simulator image, host machine, OS version, build variant, network.
+- **Report relative evidence, not absolute claims:** dropped-frame percentage, render counts, memory growth after scrolling, request counts.
 - **Emulator setup:** an Android emulator profile resembling a mid-range phone (about 4 GB RAM, arm64, 60 Hz), created by the device script (ADR-0021).
+- **The release build is `profileable`** (`<profileable android:shell="true" />` in the release manifest), so Android Studio's profilers can attach. Unlike `debuggable`, it adds no debugging features and doesn't change how the app runs.
 
-| Metric                                              | Tool                                                                                                                                                                                      | Reported as               |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| Scroll smoothness while flinging through 300+ items | Android: `adb shell dumpsys gfxinfo <pkg> framestats`, Perf Monitor overlay; iOS: Instruments "Animation Hitches" (indicative)                                                            | janky-frame %, screenshot |
-| JS and UI thread FPS                                | Perf Monitor overlay                                                                                                                                                                      | screenshot during a fling |
-| Render cost                                         | React Native DevTools Profiler (search → results), compiler badges (ADR-0014)                                                                                                             | flame graph screenshot    |
-| Cold start                                          | TTID (first frame): `adb shell am start -W` `TotalTime` after `am force-stop`, median of 10; plus one JS timing mark at the first Search render. iOS: Instruments App Launch (indicative) | table                     |
-| Memory                                              | `adb shell dumpsys meminfo` before and after scrolling 1,000 items                                                                                                                        | table                     |
-| Size                                                | release APK size; JS bundle size (`react-native bundle`, source-map-explorer)                                                                                                             | table                     |
-| Network                                             | requests per scripted session (shows debounce and cache effect)                                                                                                                           | table                     |
+**Evidence matrix.** Each thing the brief evaluates gets one headline number and one screenshot from a tool. Files live in `docs/media/perf/`, and every caption states the build type, device and date.
 
-- **In the improvements backlog:** a FlatList-versus-FlashList before/after comparison, TTFD via `reportFullyDrawn()` (needs a small native module), a `react-native-performance` startup breakdown, Reassure in CI, and real-device measurements.
-- Results go in the README's Performance section with a clearly visible **emulator caveat**. Raw captures live in `docs/media/perf/`.
+| The brief asks for | Headline number (release build)                                                                                                         | Screenshot                                                                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 60 FPS scrolling   | Janky-frame % and 90th / 99th percentile frame times from `adb shell dumpsys gfxinfo <pkg>` after a scripted fling through 300+ results | `scroll-gpu-bars.png`: Android's "Profile HWUI rendering" bars mid-fling (release). `scroll-perf-monitor.png`: the Perf Monitor overlay's UI and JS FPS mid-fling (debug, captioned as such) |
+| Fast startup       | Cold-start time to first frame: `adb shell am start -W` `TotalTime` after `am force-stop`, median of 10                                 | `startup-trace.png`: Android Studio Profiler (or Perfetto) system trace of a cold start, first frame marked (release, profileable)                                                           |
+| Low memory         | PSS and Java / native heap from `adb shell dumpsys meminfo`, before and after scrolling 1,000 results                                   | `memory-timeline.png`: Android Studio Profiler memory timeline across that scroll (release, profileable)                                                                                     |
+
+Supporting evidence, after the three rows:
+
+| Evidence    | Source                                                                        | Form                                                                                     |
+| ----------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Render cost | React Native DevTools Profiler, search → results; compiler badges (ADR-0014)  | `devtools-profiler.png`, `compiler-badges.png` (debug: the shape of the work, not speed) |
+| iOS         | Instruments "Animation Hitches" and "App Launch" on the simulator             | `ios-hitches.png`, indicative only                                                       |
+| Size        | Release APK size; JS bundle size (`react-native bundle`, source-map-explorer) | table                                                                                    |
+| Network     | Requests per scripted session (shows the debounce and cache at work)          | table                                                                                    |
+
+**README Performance section**, in this order:
+
+1. The evidence matrix as a short table: what the brief asks for → result → screenshot link.
+2. The optimisations, each linked to its code.
+3. Method and the emulator caveat, clearly visible.
+4. Why not Flipper: deprecated and removed from React Native; React Native DevTools and the platform profilers replace it.
+
+**In the improvements backlog:** a FlatList-versus-FlashList before/after comparison, TTFD via `reportFullyDrawn()` (needs a small native module), a `react-native-performance` startup breakdown, Reassure in CI, and real-device measurements.
 
 ## Alternatives considered
 
@@ -53,9 +64,11 @@ Negative / accepted costs:
 ## Enforcement
 
 - Measurements are scripted where possible (`scripts/perf/*`), so they can be re-run after changes.
+- The Phase 5 exit check: every row of the evidence matrix has its number and its screenshot, and every caption names the build type.
 - Reassure in CI is in the improvements backlog.
 
 ## References
 
 - https://reactnative.dev/docs/react-native-devtools
 - https://developer.android.com/topic/performance/rendering/inspect-gpu-rendering
+- https://developer.android.com/guide/topics/manifest/profileable-element
