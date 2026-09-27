@@ -7,6 +7,7 @@ import {
   screen,
 } from '@testing-library/react-native';
 import { http, HttpResponse } from 'msw';
+import { hide as hideSplash } from 'react-native-bootsplash';
 
 import { queryCacheStorage } from '@/shared/storage';
 import { expectAccessiblePressables } from '@/test/a11y';
@@ -39,6 +40,13 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: /Saved/ })).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: /Settings/ })).toBeOnTheScreen();
     expectAccessiblePressables();
+  });
+
+  it('hides the launch screen once navigation has rendered', async () => {
+    await render(<App />);
+    await screen.findByLabelText('Search repositories');
+
+    expect(hideSplash).toHaveBeenCalledWith({ fade: true });
   });
 
   it('shows a search from the last session offline, after a restart', async () => {

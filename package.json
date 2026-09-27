@@ -21,6 +21,7 @@
     "check:bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output node_modules/.cache/bundle-check/android.js --reset-cache && react-native bundle --platform ios --dev false --entry-file index.js --bundle-output node_modules/.cache/bundle-check/ios.js",
     "knip": "knip",
     "arch:graph": "node scripts/arch-graph.mts",
+    "brand:generate": "node scripts/generate-brand-assets.mts",
     "release:prepare": "node scripts/sync-version.mts",
     "validate": "yarn check:node && yarn typecheck && yarn lint && yarn format:check && yarn check:architecture && yarn check:docs && yarn check:version && yarn check:bundle && yarn knip && yarn test:scripts && yarn test",
     "postinstall": "lefthook install"
@@ -37,6 +38,7 @@
     "@tanstack/react-query-persist-client": "5.103.2",
     "react": "19.2.3",
     "react-native": "0.87.1",
+    "react-native-bootsplash": "7.3.3",
     "react-native-haptic-feedback": "3.0.0",
     "react-native-mmkv": "4.3.2",
     "react-native-nitro-modules": "0.37.1",
@@ -87,6 +89,7 @@
     "lefthook": "2.1.14",
     "msw": "2.15.0",
     "prettier": "3.9.9",
+    "sharp": "0.35.4",
     "test-renderer": "1.3.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.1"

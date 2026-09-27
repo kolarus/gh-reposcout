@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { hide as hideSplash } from 'react-native-bootsplash';
 
 import { installGlobalErrorHandlers } from '@/shared/monitoring';
 import { useTheme } from '@/shared/theme';
@@ -11,9 +12,23 @@ import { connectQueryManagers, createQueryClient } from './query/queryClient';
 
 installGlobalErrorHandlers();
 
+/**
+ * The launch screen stays up until navigation has rendered its first screen,
+ * whichever that is (a deep link opens Details, ADR-0006), then fades out.
+ */
+const onNavigationReady = () => {
+  void hideSplash({ fade: true });
+};
+
 function ThemedNavigation() {
   const theme = useTheme();
-  return <Navigation theme={toNavigationTheme(theme)} linking={linking} />;
+  return (
+    <Navigation
+      theme={toNavigationTheme(theme)}
+      linking={linking}
+      onReady={onNavigationReady}
+    />
+  );
 }
 
 /** Root component: providers, then navigation. */

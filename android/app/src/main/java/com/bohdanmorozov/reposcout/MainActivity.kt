@@ -6,6 +6,7 @@ import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
+import com.zoontek.rnbootsplash.RNBootSplash
 
 class MainActivity : ReactActivity() {
 
@@ -17,10 +18,12 @@ class MainActivity : ReactActivity() {
 
   /**
    * react-native-screens: restore screen fragments safely when Android recreates
-   * the Activity (otherwise restoring saved view state can crash).
+   * the Activity (otherwise restoring saved view state can crash). bootsplash:
+   * keep the launch screen up until JS hides it (ADR-0006, ADR-0010).
    */
   override fun onCreate(savedInstanceState: Bundle?) {
     supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
+    RNBootSplash.init(this, R.style.BootTheme)
     super.onCreate(savedInstanceState)
   }
 

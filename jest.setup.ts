@@ -34,6 +34,12 @@ jest.mock('@react-native-community/netinfo', () =>
   ),
 );
 
+// bootsplash's native module drives the launch screen, which Jest doesn't have.
+jest.mock('react-native-bootsplash', () => ({
+  hide: jest.fn(() => Promise.resolve()),
+  isVisible: jest.fn(() => false),
+}));
+
 // The haptics library looks up its native module when loaded; tests only
 // check which feedback was asked for.
 jest.mock('react-native-haptic-feedback', () => ({ trigger: jest.fn() }));

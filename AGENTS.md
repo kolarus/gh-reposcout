@@ -58,4 +58,4 @@ Run the **`where-does-it-go`** skill before creating a new file. Other slices ar
 
 ## Commands
 
-`yarn android` · `yarn android:release` · `yarn ios` · `yarn start` · `yarn validate` · `yarn test` · `yarn lint` · `yarn typecheck` · `yarn check:architecture` · `yarn check:docs` · `yarn check:version` · `yarn check:bundle` · `yarn arch:graph` · `yarn release:prepare <x.y.z>`
+`yarn android` · `yarn android:release` · `yarn ios` · `yarn start` · `yarn validate` · `yarn test` · `yarn lint` · `yarn typecheck` · `yarn check:architecture` · `yarn check:docs` · `yarn check:version` · `yarn check:bundle` · `yarn arch:graph` · `yarn brand:generate` · `yarn release:prepare <x.y.z>`

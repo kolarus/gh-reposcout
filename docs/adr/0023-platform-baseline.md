@@ -33,18 +33,20 @@ Users also expect accessibility support. None of this is in the brief. Given the
 
 **Android:**
 
-- Edge-to-edge with safe-area insets.
-- Predictive back gesture: opted in if React Native 0.87 and react-native-screens support it cleanly (checked in Phase 4). Otherwise it's left off and noted in the backlog.
-- **16 KB page size compatibility** verified on the release APK (`zipalign -c -P 16 -v 4`, and checking native libraries, especially MMKV/Nitro).
+- Edge-to-edge (`edgeToEdgeEnabled=true`) with safe-area insets. Checked on device (Phase 4): headers clear the status bar and the tab bar clears the gesture bar, in both themes.
+- **Predictive back: not opted in on Android 13–15; Android 16 turns it on by itself.** Checked in Phase 4:
+  - React Native 0.87 registers its back callback only on devices running Android 16+ (`SDK_INT >= 36`). With `android:enableOnBackInvokedCallback="true"` on Android 13–15, nothing in the app receives Back, and Back on Details closed the app instead of returning to Search. So the attribute stays unset, and Android 13–15 use the classic back path, which works.
+  - On Android 16+, predictive back is on by default for an app targeting SDK 36, and React Native's callback hands Back to React Navigation. Because that callback is always registered (JS decides asynchronously), the system's back-to-home preview animation doesn't play. That's a React Native limitation, noted in the improvements backlog.
+- **16 KB page size compatibility**, verified on the release APK (Phase 4): `zipalign -c -P 16 -v 4` passes, and every native library's load segments are 16 KB-aligned (`llvm-readelf -l`: all 16 libraries, including MMKV and Nitro, at `0x4000`). The release workflow repeats the check (ADR-0016).
 - `allowBackup` stays on, so saved repos survive a device migration (documented).
 - Cleartext traffic is disabled in release.
-- Release builds use R8 with resource shrinking; keep rules are added only when a library needs them.
+- Release builds use R8 with resource shrinking; keep rules are added only when a library needs them. The build writes `mapping.txt` (for de-obfuscating crash stack traces).
 - Debug builds use the `applicationIdSuffix ".debug"` and the name "RepoScout Dev", so they install next to the release APK.
 
 **iOS:**
 
-- `PrivacyInfo.xcprivacy` covers required-reason APIs (for example UserDefaults and file timestamps). Every native library's manifest is checked.
-- The launch screen comes from bootsplash.
+- `PrivacyInfo.xcprivacy` covers required-reason APIs. Audited in Phase 4: file timestamps (`C617.1`; React Native, and MMKV's `stat`/`fstat` on its own files), system boot time (`35F9.1`) and UserDefaults (`CA92.1`), both React Native. None of the other native libraries ships a manifest or calls a required-reason API. No tracking and no collected data types: search terms go to GitHub only to answer the request, and there's no analytics.
+- The launch screen comes from bootsplash (`BootSplash.storyboard`; the template's `LaunchScreen.storyboard` is removed).
 - Dark appearance is supported. Dynamic Type verification is part of the deferred accessibility pass.
 
 **Form factor: phones, portrait-only.**
@@ -56,10 +58,11 @@ Users also expect accessibility support. None of this is in the brief. Given the
 **Branding: an original emblem, no GitHub marks.**
 
 - The RepoScout emblem: a scout's campaign hat resting on a magnifying glass whose lens shows a git-branch glyph, inside a round forest-green badge. It was chosen over two character mascots (an owl and a fox) because it stays legible down to 24 px. Nothing resembles the Octocat or GitHub's logo.
-- The source SVG is `assets/brand/reposcout-emblem.svg`. `yarn brand:generate` (`scripts/generate-brand-assets.mts`, using sharp) produces:
-  - Android adaptive icons plus a monochrome layer for Android 13+ themed icons
-  - the iOS 1024 px icon
-  - the bootsplash logo
+- The source SVGs are `assets/brand/reposcout-emblem.svg` and a one-colour variant, `reposcout-emblem-monochrome.svg` (no badge disc, the lens as a ring, so the branch stays visible when tinted). `yarn brand:generate` (`scripts/generate-brand-assets.mts`, using sharp) produces:
+  - Android adaptive icons: the brand-green background, the emblem as the foreground (sized to the 66 dp safe circle), and the monochrome layer for Android 13+ themed icons; legacy icons for Android 7 and older
+  - the iOS 1024 px icon with its dark (transparent, iOS draws the backdrop) and tinted (white on black) variants
+  - the launch screen through bootsplash's generator, plus the dark backgrounds its free tier leaves out (ADR-0010)
+  - Colours come from the design tokens, read by the script, so the splash matches the app's background exactly.
 - The GitHub name is used only descriptively ("explore GitHub repositories"). The `mark-github` Octicon is used only to mean "open on GitHub".
 - The README and About screen say: "Not affiliated with or endorsed by GitHub, Inc."
 

@@ -15,7 +15,7 @@ Smooth lists depend on avoiding unnecessary re-renders. Manual `useMemo`, `useCa
 - **Don't write manual `useMemo` / `useCallback` / `React.memo`** unless profiling shows the compiler didn't cover a case. When a manual one is added, comment why.
 - `"use no memo"` is allowed only as a documented, temporary escape hatch that links an issue.
 - **Time is read through hooks, not during render.** `Date.now()` in a component is impure, so rows get `now` from `useNow` (a ticking state value) and timers are scheduled through small helpers such as `runAt`. The compiler's lint also flags `Date.now()` inside effects in some cases, which the helper sidesteps. Effect callbacks that need the latest props use React 19.2's `useEffectEvent` instead of adding them as dependencies.
-- Verify in React Native DevTools: optimised components show the compiler badge. Include a screenshot in the performance section (ADR-0017).
+- Verify in React Native DevTools: optimised components show the compiler badge. Include a screenshot in the performance section (ADR-0017). Verified in Phase 4 (`docs/media/perf/compiler-badges.png`, debug build): a search-result `RepoCard` and everything it renders (`Avatar`, `LanguageDot`, `SaveToggle`, `Text`, `Icon`, `Divider`) carry "Memo ✨", as do `SearchResultsList`, `SearchScreen`, `AppProviders`, `ThemeProvider` and `App`.
 
 ## Alternatives considered
 

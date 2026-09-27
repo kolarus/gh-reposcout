@@ -62,10 +62,12 @@ The app needs light and dark themes (following the system, with a manual overrid
 
 **UI catalog (development only):** `screens/ui-catalog` shows every token and shared component in the current theme, with a theme switch. It's used for design review, and becomes reachable only in development builds once navigation exists.
 
-**Splash screen** (react-native-bootsplash):
+**Splash screen** (react-native-bootsplash 7.3):
 
-- The logo is the RepoScout emblem, a round badge (ADR-0023), so it works on light and dark backgrounds and fits Android 12+'s circular splash mask.
-- The background follows the system appearance: Android `values-night`, and an iOS named colour with a dark variant. We set these up ourselves because bootsplash's dark-mode generation needs a paid licence.
+- The logo is the RepoScout emblem, a round badge (ADR-0023), 128 dp wide, so it works on light and dark backgrounds and fits Android 12+'s circular splash mask whole.
+- The background is the app's own background token (`neutral50` light, `neutral950` dark), so the first screen appears without a colour change. It follows the system appearance: Android `values-night`, and an iOS named colour with a dark variant. `yarn brand:generate` writes both after running bootsplash's generator, because its dark-mode generation needs a paid licence.
+- Hidden with a fade in `NavigationContainer`'s `onReady`, i.e. once the first screen (Search, or Details from a deep link) has rendered (ADR-0006).
+- Admission (ADR-0002), checked 2026-09-27: New Architecture TurboModule; 7.3.3 released 2026-09-14; React Native has no launch-screen API, and doing it by hand means a theme, a storyboard and hide timing on both platforms. Its generator pulls sharp and `@expo/config-plugins` into `node_modules` for the CLI only; nothing of it ships in the app.
 - Accepted trade-off: the splash follows the _system_ theme. If the user's in-app override differs, colours switch once the app renders. Reading the stored preference natively is in the improvements backlog.
 
 ## Alternatives considered
