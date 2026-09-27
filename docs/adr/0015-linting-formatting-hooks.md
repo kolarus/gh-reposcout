@@ -36,6 +36,7 @@ Most of our architecture and typing rules can be checked by a machine (ADR-0022)
   - `@react-native-vector-icons/*` only in `shared/ui/Icon`
   - no user-facing text literals in JSX outside `shared/i18n` and tests (`no-restricted-syntax` on `JSXText`), so copy goes through `strings.ts` (ADR-0019)
   - tests are exempt from the styles and JSX-text restrictions (they aren't components)
+  - tests may not sleep: no `setTimeout` / `setInterval`, no timed MSW `delay(ms)` (ADR-0013)
   - The restrictions are built by two helpers in `eslint.config.mjs` that take the names of the ones a folder may skip. When nothing is left, a helper returns `'off'` rather than `['error']`: in flat config, a rule set to a bare severity keeps the options of the earlier config, so `['error']` would silently re-apply every restriction.
 
 **Prettier** is the single source of formatting, with `eslint-config-prettier` so the two don't conflict.

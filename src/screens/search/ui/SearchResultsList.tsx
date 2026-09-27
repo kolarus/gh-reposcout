@@ -33,6 +33,8 @@ const MVCP_OFF = { disabled: true } as const;
 /**
  * The results list (ADR-0009): FlashList recycling, one press handler shared
  * by every row, pages loaded near the end, pull-to-refresh back to page 1.
+ * While it shows a previous search's results (`isStale`), they're veiled and
+ * inert: rows can't be opened, and the list doesn't scroll or refresh.
  */
 export function SearchResultsList({
   search,
@@ -52,16 +54,26 @@ export function SearchResultsList({
     listRef.current?.scrollToOffset({ offset: 0, animated: false });
   }, [searchKey]);
 
+  const { isStale } = view;
+  // FlashList re-renders visible rows when this changes.
+  const rowState = { now, isStale };
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container} accessibilityState={{ busy: isStale }}>
       <FlashList
         ref={listRef}
         data={view.results.repos}
         keyExtractor={keyExtractor}
         renderItem={({ item }) => (
-          <RepoCard repo={item} now={now} onPress={onPressRepo} />
+          <RepoCard
+            repo={item}
+            now={now}
+            onPress={onPressRepo}
+            disabled={isStale}
+          />
         )}
-        extraData={now}
+        extraData={rowState}
+        scrollEnabled={!isStale}
         ItemSeparatorComponent={Divider}
         ListHeaderComponent={<ResultsHeader results={view.results} />}
         ListFooterComponent={
@@ -77,6 +89,7 @@ export function SearchResultsList({
         onEndReachedThreshold={0.5}
         refreshControl={
           <RefreshControl
+            enabled={!isStale}
             refreshing={search.isRefreshing}
             onRefresh={() => {
               void search.refresh();
@@ -90,7 +103,7 @@ export function SearchResultsList({
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       />
-      {view.isStale ? (
+      {isStale ? (
         <View testID="stale-results" style={styles.staleVeil} />
       ) : null}
     </View>

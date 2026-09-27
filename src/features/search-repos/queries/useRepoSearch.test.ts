@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { delay, http, HttpResponse } from 'msw';
 
 import { useRateLimit } from '@/shared/api';
+import { createGate } from '@/test/gate';
 import { buildRepoDto, buildSearchPage, SEARCH_URL } from '@/test/github';
 import { server } from '@/test/server';
 import { createTestQueryClient, createWrapper } from '@/test/TestProviders';
@@ -95,6 +96,8 @@ describe('useRepoSearch', () => {
       });
     }
     expect(requests).toHaveLength(0);
+    // Pending from the first keystroke, before any request is sent.
+    expect(result.current.isPending).toBe(true);
 
     await act(() => {
       jest.advanceTimersByTime(100);
@@ -102,6 +105,7 @@ describe('useRepoSearch', () => {
     await waitForResults();
 
     expect(requests.map(p => p.get('q'))).toEqual(['react']);
+    expect(result.current.isPending).toBe(false);
     expect(result.current.params).toEqual({
       query: 'react',
       sort: 'best-match',
@@ -210,12 +214,13 @@ describe('useRepoSearch', () => {
   });
 
   it('keeps the previous results, marked stale, while a new sort loads', async () => {
+    const starsGate = createGate();
     const requests: URLSearchParams[] = [];
     server.use(
       http.get(SEARCH_URL, async ({ request }) => {
         const params = new URL(request.url).searchParams;
         requests.push(params);
-        if (params.get('sort') === 'stars') await delay(100);
+        if (params.get('sort') === 'stars') await starsGate.opened;
         return HttpResponse.json(buildSearchPage({ page: 1, total: 5 }));
       }),
     );
@@ -229,6 +234,8 @@ describe('useRepoSearch', () => {
       kind: 'results',
       isStale: true,
     });
+    expect(result.current.isPending).toBe(true);
+    starsGate.open();
     await waitFor(() => {
       expect(result.current.view).toMatchObject({
         kind: 'results',
@@ -236,6 +243,7 @@ describe('useRepoSearch', () => {
       });
     });
     expect(requests.map(p => p.get('sort'))).toEqual([null, 'stars']);
+    expect(result.current.isPending).toBe(false);
   });
 
   it.each([

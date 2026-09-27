@@ -22,6 +22,12 @@ export interface RepoSearch {
   /** The normalised search in effect; `undefined` while idle. */
   params: SearchParams | undefined;
   view: SearchView;
+  /**
+   * A new search is on its way: typing hasn't paused yet, or its first page
+   * is loading (skeleton or veiled previous results). Not set for "load
+   * more" or pull-to-refresh, which have their own spinners.
+   */
+  isPending: boolean;
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   /** A failed "load more"; the loaded results stay on screen. */
@@ -90,15 +96,21 @@ export function useRepoSearch(text: string, sort: SearchSort): RepoSearch {
     );
   }, [errorResetAt]);
 
+  const view = resolveSearchView({
+    query: params?.query,
+    results: query.data,
+    error: query.isFetchNextPageError ? undefined : error,
+    isPaused: query.isPaused,
+    isStale: query.isPlaceholderData || isSettling,
+  });
+
   return {
     params,
-    view: resolveSearchView({
-      query: params?.query,
-      results: query.data,
-      error: query.isFetchNextPageError ? undefined : error,
-      isPaused: query.isPaused,
-      isStale: query.isPlaceholderData || isSettling,
-    }),
+    view,
+    isPending:
+      isSettling ||
+      view.kind === 'loading' ||
+      (view.kind === 'results' && view.isStale),
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,
     nextPageError: query.isFetchNextPageError ? error : undefined,

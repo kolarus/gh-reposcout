@@ -1,4 +1,11 @@
-import { Pressable, TextInput, View } from 'react-native';
+import { useEffect } from 'react';
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Pressable,
+  TextInput,
+  View,
+} from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
@@ -14,9 +21,17 @@ interface SearchFieldProps {
   /** Spoken label of the clear button. */
   clearLabel: string;
   autoFocus?: boolean;
+  /** Shows a spinner in place of the search icon, e.g. while results load. */
+  loading?: boolean;
+  /** Spoken when `loading` turns on, and the spinner's label. */
+  loadingLabel?: string;
 }
 
-/** Themed search input with a clear button; raw text in, raw text out. */
+/**
+ * Themed search input with a clear button; raw text in, raw text out. While
+ * `loading`, a spinner replaces the search icon (same-size slot, so the text
+ * doesn't move) and screen readers hear `loadingLabel` once.
+ */
 export function SearchField({
   value,
   onChangeText,
@@ -24,13 +39,31 @@ export function SearchField({
   placeholder,
   clearLabel,
   autoFocus = false,
+  loading = false,
+  loadingLabel,
 }: SearchFieldProps) {
   const theme = useTheme();
   const styles = useStyles();
 
+  useEffect(() => {
+    if (loading && loadingLabel !== undefined) {
+      AccessibilityInfo.announceForAccessibility(loadingLabel);
+    }
+  }, [loading, loadingLabel]);
+
   return (
     <View style={styles.container}>
-      <Icon name="search" size="sm" tone="secondary" />
+      <View style={styles.leading}>
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={theme.colors.accent}
+            accessibilityLabel={loadingLabel}
+          />
+        ) : (
+          <Icon name="search" size="sm" tone="secondary" />
+        )}
+      </View>
       <TextInput
         value={value}
         onChangeText={onChangeText}

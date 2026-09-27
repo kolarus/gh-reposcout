@@ -96,14 +96,35 @@ const restrictedSyntax = {
     },
   ],
 };
-const noRestrictedSyntax = (...allowed) => {
-  const selectors = Object.entries(restrictedSyntax)
+const selectorsExcept = (...allowed) =>
+  Object.entries(restrictedSyntax)
     .filter(([key]) => !allowed.includes(key))
     .flatMap(([, value]) => value);
-  // A severity-only override (['error']) would inherit the earlier block's
-  // selectors in flat config, so an empty list must turn the rule off instead.
-  return selectors.length > 0 ? ['error', ...selectors] : 'off';
-};
+// A severity-only override (['error']) would inherit the earlier block's
+// selectors in flat config, so an empty list must turn the rule off instead.
+const syntaxRule = selectors =>
+  selectors.length > 0 ? ['error', ...selectors] : 'off';
+const noRestrictedSyntax = (...allowed) =>
+  syntaxRule(selectorsExcept(...allowed));
+
+/*
+ * Tests don't sleep (ADR-0013): waiting on the clock makes them slow, and
+ * flaky on a busy machine. MSW's delay('infinite'), a request that never
+ * answers, isn't a sleep and stays allowed.
+ */
+const testSleepSelectors = [
+  {
+    selector: 'CallExpression[callee.name=/^set(Timeout|Interval)$/]',
+    message:
+      'No sleeping in tests (ADR-0013): wait for the UI with findBy/waitFor, drive time with fake timers, or hold a fake response with createGate() from @/test/gate. A real exception needs an eslint-disable with the reason.',
+  },
+  {
+    selector:
+      "CallExpression[callee.name='delay']:not([arguments.0.value='infinite'])",
+    message:
+      "No timed MSW delay (ADR-0013): hold the response with createGate() from @/test/gate and open it when the test is ready. delay('infinite') is fine for a request that never answers.",
+  },
+];
 
 /* ADR-0005 layers: app → screens → features → entities → shared. */
 const LAYERS_BELOW = {
@@ -401,6 +422,16 @@ export default tseslint.config(
       'no-restricted-globals': 'off',
       // Tests aren't components: they may use inline copy and build styles.
       'no-restricted-syntax': noRestrictedSyntax('jsxText', 'styles'),
+    },
+  },
+  {
+    // jest.setup.ts is excluded: it wraps timers for TanStack, it doesn't sleep.
+    files: ['**/*.test.{ts,tsx}', 'src/test/**'],
+    rules: {
+      'no-restricted-syntax': syntaxRule([
+        ...selectorsExcept('jsxText', 'styles'),
+        ...testSleepSelectors,
+      ]),
     },
   },
 

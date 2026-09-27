@@ -12,7 +12,10 @@ export type SearchView =
   | {
       kind: 'results';
       results: SearchResults;
-      /** Previous results kept on screen while a changed search loads. */
+      /**
+       * The previous search's results, kept on screen (veiled, not
+       * interactive) while the changed search loads.
+       */
       isStale: boolean;
     };
 
@@ -27,10 +30,16 @@ interface SearchViewInput {
 }
 
 /**
- * One decision, in priority order: rows on screen always win (offline or
- * failed refreshes keep showing them), then the error, then offline, then the
- * skeleton. An empty result is "no match" only for the current search; a
- * stale empty one says nothing about the new query, so it shows the skeleton.
+ * One decision, in priority order:
+ * 1. The current search's own rows always win, even offline or after a failed
+ *    refresh (the offline banner explains).
+ * 2. "No match", but only for the current search: a stale empty result says
+ *    nothing about the new query.
+ * 3. The error, then offline.
+ * 4. The previous search's rows, veiled, while the new one loads. Not offline:
+ *    they'd stay on screen, veiled, until the device reconnects, answering a
+ *    question the user no longer asked.
+ * 5. The skeleton.
  */
 export function resolveSearchView({
   query,
@@ -40,11 +49,15 @@ export function resolveSearchView({
   isStale,
 }: SearchViewInput): SearchView {
   if (query === undefined) return { kind: 'idle' };
-  if (results !== undefined && results.repos.length > 0) {
-    return { kind: 'results', results, isStale };
+  const hasRows = results !== undefined && results.repos.length > 0;
+  if (results !== undefined && hasRows && !isStale) {
+    return { kind: 'results', results, isStale: false };
   }
   if (results !== undefined && !isStale) return { kind: 'empty', query };
   if (error !== undefined) return { kind: 'error', error };
   if (isPaused) return { kind: 'offline' };
+  if (results !== undefined && hasRows) {
+    return { kind: 'results', results, isStale: true };
+  }
   return { kind: 'loading' };
 }

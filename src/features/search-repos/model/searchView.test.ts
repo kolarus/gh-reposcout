@@ -68,6 +68,17 @@ describe('resolveSearchView', () => {
     ).toMatchObject({ kind: 'results' });
   });
 
+  it("shows offline rather than another search's rows when the new one can't run", () => {
+    expect(
+      resolveSearchView({
+        ...base,
+        results: results(3),
+        isStale: true,
+        isPaused: true,
+      }),
+    ).toEqual({ kind: 'offline' });
+  });
+
   it('shows the error, then offline, when there is no data', () => {
     expect(
       resolveSearchView({

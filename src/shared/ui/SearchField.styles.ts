@@ -12,6 +12,13 @@ export const useStyles = makeStyles(theme => ({
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
   },
+  // Fits the icon and the spinner alike, so swapping them doesn't shift text.
+  leading: {
+    width: theme.iconSize.md,
+    height: theme.iconSize.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   input: {
     flex: 1,
     // Line height is left out: on iOS it misaligns single-line input text.

@@ -66,7 +66,8 @@ export function SearchScreen() {
         );
       case 'loading':
         return (
-          <View accessibilityLabel={strings.search.loading}>
+          // The search field's spinner announces loading; this is visual.
+          <View testID="search-skeleton">
             {skeletonKeys.map(key => (
               <View key={key}>
                 <RepoCardSkeleton />
@@ -116,6 +117,8 @@ export function SearchScreen() {
           placeholder={strings.search.placeholder}
           clearLabel={strings.search.clear}
           autoFocus={autoFocus}
+          loading={search.isPending}
+          loadingLabel={strings.search.loading}
         />
         {search.params !== undefined ? (
           <SortPicker value={sort} onChange={setSort} />

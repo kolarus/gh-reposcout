@@ -15,7 +15,9 @@ export const useStyles = makeStyles(theme => ({
     left: 0,
     backgroundColor: theme.colors.background,
     opacity: 0.5,
-    // The results stay scrollable and tappable underneath.
+    // Visual only: the list itself turns rows and scrolling off while stale,
+    // which is reliable on both platforms (an overlay blocking native scroll
+    // isn't).
     pointerEvents: 'none',
   },
 }));

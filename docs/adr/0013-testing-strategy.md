@@ -27,8 +27,15 @@ As of 2026-09-26:
 **Rules:**
 
 - Query by role and text (accessibility-first). Use `testID` only where Maestro needs it.
-- Fixture factories: `buildRepoDto(overrides)`.
-- Fake timers for debounce and countdown tests.
+- Fixture factories: `buildRepoDto(id, overrides)`, built from a captured real response.
+- **No sleeping in tests.** A test never waits on the clock (`setTimeout`, a timed MSW `delay(ms)`) to let something happen: that's slow on a fast machine and flaky on a busy one, and it hides what the test is actually waiting for. Instead:
+  - UI that updates asynchronously: `findBy*` / `waitFor`, which wait for the condition itself.
+  - Behaviour that depends on time (debounce, countdowns, rate-limit resume, staleness, work left over at the end of a test): Jest's fake timers, advanced explicitly.
+  - An intermediate state such as a loading skeleton or stale results: hold the fake response with `createGate()` (`src/test/gate.ts`), assert, then open the gate.
+  - A request that must never answer (cancellation, timeouts): MSW's `delay('infinite')`, which isn't a sleep.
+
+  Lint enforces this in test files. A genuine exception needs an `eslint-disable` that names the rule and explains why no deterministic option works.
+
 - End-to-end tests assert structure ("first row visible", "stars shown"), never specific repos or rankings.
 - Tests sit next to the code they test (`X.test.tsx`). Shared helpers live in `src/test/`.
 - Coverage is reported in CI without a gate. A gate on critical modules (`shared/api`, mappers, `save-repo` ≥ 90%) is in the improvements backlog.
@@ -54,7 +61,8 @@ As of 2026-09-26:
 
 - `TestProviders` / `createWrapper(queryClient)`: theme and a query client with retries off (the retry policy has its own tests), for screens and hooks.
 - `github.ts`: `buildRepoDto(id, overrides)` and `buildSearchPage({ page, total })`, built from a real captured search response (`fixtures/search-repositories.json`), which the contract tests also parse as is.
-- Timer-dependent behaviour (debounce, countdown, rate-limit resume, staleness) uses Jest's fake timers; MSW works with them.
+- `gate.ts`: `createGate()` holds a fake response until the test opens it (see "No sleeping in tests").
+- Timer-dependent behaviour (debounce, countdown, rate-limit resume, staleness) uses Jest's fake timers; MSW works with them. Screen tests run on fake timers throughout, and flush what's still scheduled inside `act()` before unmounting, so no update lands after a test.
 
 **What Jest can't catch:** Jest loads each package's Node build, while Metro bundles the React Native build, so a syntax the app's Babel setup doesn't handle can pass every test and still break the app. (zod v4's `export * as` did exactly that.) `yarn check:bundle` builds a release bundle for both platforms, about 10 seconds, and is part of `yarn validate`.
 

@@ -20,7 +20,7 @@ GitHub serves avatars at about 420–460 px (about 30 KB) by default, and suppor
 - No per-row `elevation` or shadows; hairline separators instead.
 - Infinite scroll: `onEndReachedThreshold` about 0.5–1 screen, guarded with `isFetchingNextPage` / `hasNextPage`.
 - `maintainVisibleContentPosition` is **disabled**. FlashList v2 enables it by default to keep the first visible row in place when data changes, which suits lists that grow at the top. Ours grows at the bottom, and with it on, a new sort opened one row down (seen on device).
-- A changed search keeps the previous rows visible under a veil (ADR-0007). The veil is an overlay view, not `opacity` on the list: Android fades each view separately, so the avatar's initials placeholder would show through its image.
+- A changed search keeps the previous rows visible under a veil (ADR-0007), and they're inert: rows are `disabled` and the list stops scrolling until the new results arrive. The veil is an overlay view, not `opacity` on the list: Android fades each view separately, so the avatar's initials placeholder would show through its image. The overlay is visual only; blocking touches is done by the list's own props, because an overlay doesn't reliably stop native scrolling.
 - Rows get the current time as a `now` prop (from `useNow`, refreshed each minute) for "Updated 3d ago", so a row's render stays pure (ADR-0014).
 
 **Images: React Native's core `Image`**, wrapped in `shared/ui/Avatar`.

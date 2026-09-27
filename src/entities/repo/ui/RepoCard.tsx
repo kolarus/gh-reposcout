@@ -20,6 +20,8 @@ interface RepoCardProps {
   /** Current time (epoch ms) for "Updated 3d ago"; passed in so rows stay pure. */
   now: number;
   onPress: (repo: RepoSummary) => void;
+  /** Not pressable, e.g. while the list shows a previous search's results. */
+  disabled?: boolean;
   /** Slot for feature UI such as the save toggle (ADR-0005). */
   accessory?: ReactNode;
 }
@@ -29,7 +31,13 @@ interface RepoCardProps {
  * one metadata line), a server-sized avatar, and a single press handler that
  * receives the repo, so the list passes one stable function to every row.
  */
-export function RepoCard({ repo, now, onPress, accessory }: RepoCardProps) {
+export function RepoCard({
+  repo,
+  now,
+  onPress,
+  disabled = false,
+  accessory,
+}: RepoCardProps) {
   const theme = useTheme();
   const styles = useStyles();
   const avatarPx = theme.avatarSize.md * PixelRatio.get();
@@ -51,6 +59,7 @@ export function RepoCard({ repo, now, onPress, accessory }: RepoCardProps) {
       onPress={() => {
         onPress(repo);
       }}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
       style={({ pressed }) => [styles.container, pressed && styles.pressed]}

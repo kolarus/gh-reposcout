@@ -44,6 +44,7 @@ Run the **`where-does-it-go`** skill before creating a new file. Other slices ar
 - **Confined APIs:** `fetch` only in `shared/api`; MMKV only in `shared/storage`; `console` only in `shared/monitoring`; icons only through `shared/ui` Icon; FlashList instead of FlatList; images through `shared/ui` Avatar.
 - **Copy and tokens:** user-facing strings from `shared/i18n`; colours and spacing from theme tokens. ([0010](docs/adr/0010-styling-theming-animation.md), [0019](docs/adr/0019-strings-and-formatting.md))
 - **No secrets, no tokens** anywhere. ([0012](docs/adr/0012-rate-limits-no-auth.md))
+- **Tests don't sleep:** no `setTimeout` or timed MSW `delay(ms)` to wait for something. Use `findBy`/`waitFor`, fake timers, or `createGate()` from `src/test/gate.ts`. ([0013](docs/adr/0013-testing-strategy.md))
 - **Suppressions:** every `eslint-disable` names the rule and explains why.
 
 ## Workflow

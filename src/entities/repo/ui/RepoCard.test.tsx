@@ -49,6 +49,23 @@ describe('RepoCard', () => {
     expect(onPress).toHaveBeenCalledWith(repo);
   });
 
+  it('ignores presses when disabled, and says so to screen readers', async () => {
+    const onPress = jest.fn();
+    await render(
+      <ThemeProvider>
+        <RepoCard repo={repo} now={NOW} onPress={onPress} disabled />
+      </ThemeProvider>,
+    );
+
+    const card = screen.getByRole('button', {
+      name: /^facebook\/react-native,/,
+    });
+    await fireEvent.press(card);
+
+    expect(card).toBeDisabled();
+    expect(onPress).not.toHaveBeenCalled();
+  });
+
   it('requests an avatar sized for the row, not the 460 px default', async () => {
     await render(
       <ThemeProvider>
