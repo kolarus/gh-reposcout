@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
   Pressable,
   TextInput,
   View,
+  type TextInputInstance,
 } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
@@ -28,7 +29,8 @@ interface SearchFieldProps {
 }
 
 /**
- * Themed search input with a clear button; raw text in, raw text out. While
+ * Themed search input with a clear button that empties it and focuses it
+ * for the next query; raw text in, raw text out. While
  * `loading`, a spinner replaces the search icon (same-size slot, so the text
  * doesn't move) and screen readers hear `loadingLabel` once.
  */
@@ -44,6 +46,7 @@ export function SearchField({
 }: SearchFieldProps) {
   const theme = useTheme();
   const styles = useStyles();
+  const inputRef = useRef<TextInputInstance>(null);
 
   useEffect(() => {
     if (loading && loadingLabel !== undefined) {
@@ -65,6 +68,7 @@ export function SearchField({
         )}
       </View>
       <TextInput
+        ref={inputRef}
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={() => {
@@ -85,6 +89,9 @@ export function SearchField({
         <Pressable
           onPress={() => {
             onChangeText('');
+            // Clearing is how a new search starts, so the keyboard comes up,
+            // as in the platforms' own search fields.
+            inputRef.current?.focus();
           }}
           accessibilityRole="button"
           accessibilityLabel={clearLabel}

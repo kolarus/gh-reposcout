@@ -3,15 +3,19 @@ import {
   getStateFromPath,
 } from '@react-navigation/native';
 
+import { linking } from './linking';
 import { RootStack } from './RootNavigator';
 
+// Built the way createStaticNavigation builds it, from the app's own linking
+// options, so a missing option fails here instead of on a device.
+const { initialRouteName } = linking.config;
 const screens = createPathConfigForStaticNavigation(
   RootStack,
-  { initialRouteName: 'Tabs' },
-  true,
+  { initialRouteName },
+  true, // linking.enabled is 'auto'
 );
 const stateFor = (path: string) =>
-  getStateFromPath(path, { initialRouteName: 'Tabs', screens: screens ?? {} });
+  getStateFromPath(path, { initialRouteName, screens: screens ?? {} });
 
 describe('deep links (ADR-0006)', () => {
   it('opens repo details with owner and name, with the tabs underneath for Back', () => {

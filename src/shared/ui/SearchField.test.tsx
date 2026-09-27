@@ -1,15 +1,29 @@
-import { render, screen } from '@testing-library/react-native';
-import { AccessibilityInfo } from 'react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
+import { AccessibilityInfo, TextInput } from 'react-native';
 
 import { ThemeProvider } from '@/shared/theme';
 
 import { SearchField } from './SearchField';
 
-const renderField = (loading: boolean) => (
+// The Jest preset's TextInput is a mock class whose instance methods, such as
+// focus(), are shared mocks on its prototype.
+const mockedFocus = () => {
+  const prototype: unknown = Reflect.get(TextInput, 'prototype');
+  const focus =
+    typeof prototype === 'object' && prototype !== null && 'focus' in prototype
+      ? prototype.focus
+      : undefined;
+  if (!jest.isMockFunction(focus)) {
+    throw new Error("The Jest preset's TextInput mock has no focus().");
+  }
+  return focus;
+};
+
+const renderField = (loading: boolean, onChangeText = jest.fn()) => (
   <ThemeProvider>
     <SearchField
       value="react"
-      onChangeText={jest.fn()}
+      onChangeText={onChangeText}
       onSubmit={jest.fn()}
       placeholder="Search repositories"
       clearLabel="Clear search"
@@ -36,5 +50,16 @@ describe('SearchField', () => {
     expect(announce).toHaveBeenCalledTimes(1);
     expect(announce).toHaveBeenCalledWith('Loading results');
     announce.mockRestore();
+  });
+
+  it('clears the text and focuses the field for the next query', async () => {
+    const onChangeText = jest.fn();
+    const focus = mockedFocus();
+    await render(renderField(false, onChangeText));
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Clear search' }));
+
+    expect(onChangeText).toHaveBeenCalledWith('');
+    expect(focus).toHaveBeenCalledTimes(1);
   });
 });

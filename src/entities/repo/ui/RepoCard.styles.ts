@@ -7,7 +7,8 @@ export const useStyles = makeStyles(theme => ({
     gap: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.background,
+    // No background of its own: in a list, rows sit at fractional offsets,
+    // and an opaque row rounded one pixel up covers the hairline above it.
   },
   pressed: { backgroundColor: theme.colors.surfaceMuted },
   body: { flex: 1, gap: theme.spacing.xs },

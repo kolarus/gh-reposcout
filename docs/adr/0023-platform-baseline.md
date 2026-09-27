@@ -41,6 +41,8 @@ Users also expect accessibility support. None of this is in the brief. Given the
 - `allowBackup` stays on, so saved repos survive a device migration (documented).
 - Cleartext traffic is disabled in release.
 - Release builds use R8 with resource shrinking; keep rules are added only when a library needs them. The build writes `mapping.txt` (for de-obfuscating crash stack traces).
+  - One rule so far: react-native-screens' fragments keep their class names. When Android recreates the Activity (a font size or language change, or a return after the process was killed in the background), `RNScreensFragmentFactory` recognises its fragments by package name and discards them; renamed by R8, they were restored instead, and the release app crashed. Found in the Phase 4 Android QA pass; verified fixed with a font size change and a real process death.
+  - After such a recreation the app reopens on the Search tab: navigation state isn't persisted (improvements backlog).
 - Debug builds use the `applicationIdSuffix ".debug"` and the name "RepoScout Dev", so they install next to the release APK.
 
 **iOS:**

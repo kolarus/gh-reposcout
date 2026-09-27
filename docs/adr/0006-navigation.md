@@ -29,7 +29,7 @@ Facts as of 2026-09-26: React Navigation **8.0 is still pre-release**. Its alpha
 - **Params carry only identifiers** (`owner`, `name`), never objects. Data comes from the query cache: seeded from search results (ADR-0007) or from saved snapshots (ADR-0020). Deep links, state restoration and in-app navigation therefore behave the same.
 - **One Details screen per repo:** `RepoDetails` has a `getId` of the lowercased `owner/name`, so opening another repo (a link, a saved repo) stacks a new screen instead of replacing the open one, and Back returns to it.
 - **Deep links:** `reposcout://repo/:owner/:name`, via an Android intent filter and an iOS URL scheme. Params are validated against GitHub's login and repo-name patterns before any request; invalid ones show the not-found state.
-  - The linking config sets the tabs as the initial route, so a deep-linked Details screen has a working back button to Search.
+  - The linking config sets the tabs as the initial route (`linking.config.initialRouteName: 'Tabs'`), so a deep-linked Details screen has a working back button to Search. The navigator's own `initialRouteName` doesn't apply to deep links. Found in the Phase 4 Android QA pass: without the linking option, a cold-start deep link opened Details with no back arrow, and Back closed the app.
   - The splash screen is hidden in `NavigationContainer`'s `onReady`, not in a specific screen. On a deep-link cold start the first screen is Details, not Search.
 - **Lazy screens:** Details, Settings and the dev-only UI catalog are wrapped in `React.lazy(() => import(...))`, so their code runs on first navigation, not at startup. Search stays eager because it's the first screen.
   - The static API has no `getComponent` (that option exists only in the dynamic API), so `React.lazy` is the lazy-loading mechanism.
@@ -62,7 +62,7 @@ Negative / accepted costs:
 
 - TypeScript: navigating with the wrong params doesn't compile.
 - The `rn-review` skill flags objects passed as params.
-- Deep-link parsing has unit tests: they build the path config from the real navigator with `createPathConfigForStaticNavigation` and resolve URLs with `getStateFromPath`, so a renamed route or path breaks a test.
+- Deep-link parsing has unit tests: they build the path config from the real navigator and the app's own `linking` options, as `createStaticNavigation` does, with `createPathConfigForStaticNavigation`, and resolve URLs with `getStateFromPath`. A renamed route or path, or a missing linking option, breaks a test.
 - A Maestro flow opens a deep link.
 
 ## References
