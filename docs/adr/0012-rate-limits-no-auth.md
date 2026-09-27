@@ -29,6 +29,22 @@ Any token bundled into a mobile app is extractable from the binary. Proper authe
 - Fetch the next page only near the end of the list, never eagerly. With `per_page=100` that's at most 10 requests per query.
 - **Never refetch all loaded pages at once.** TanStack refetches every page of a stale infinite query, which could spend the whole minute's budget in one go. Search therefore doesn't refetch on app focus or reconnect, a search with several pages loaded never goes stale on its own, and pull-to-refresh refetches page 1 only (ADR-0007).
 
+**Spending the core budget (60 requests an hour, shared by repo and owner requests):**
+
+- **Opening a repo from search costs no repo request.** A search result already carries every field Details shows, so row press copies it into the Details cache (ADR-0007) as a fresh record. Details stays fresh for about 10 minutes from when the search ran; after that, one background request refreshes it.
+- **Details shows no "watchers" figure.** Search results don't carry the real watcher count (their `watchers_count` repeats the star count), and fetching the repo only for that number would cost a request per open.
+- **Owner profiles are cached per owner for an hour.** The owner card shows login, avatar and account type from the repo data straight away; the profile (`/users/{login}`) adds name, bio and follower counts. Opening five repos from one organisation costs one profile request.
+- **A reserve for requests that can't be skipped.** When the last known core budget is at 5 requests or fewer, owner profiles and saved-snapshot completion (ADR-0020) stop loading on their own. The owner card says when the limit resets and offers a "Load now" button. A deep link to a repo that isn't cached needs its repo request, so the budget is kept for it.
+- **Deep links use current names.** A renamed repo answers with a redirect, and following it costs a second request. Cache keys use the canonical `full_name` from the response.
+- **Across restarts:** the persisted query cache (ADR-0011) keeps repos and owner profiles, so reopening recently viewed ones costs nothing.
+
+| Action                                          | Core requests                                  |
+| ----------------------------------------------- | ---------------------------------------------- |
+| Open a result, search less than ~10 minutes old | 0, plus 1 if that owner's profile isn't cached |
+| Open a result, older search                     | 1 in the background, plus the owner as above   |
+| Deep link                                       | 1 (2 if the repo was renamed), plus the owner  |
+| Pull to refresh on Details                      | 1                                              |
+
 **When a limit is hit:**
 
 - Every response's `x-ratelimit-resource` / `x-ratelimit-remaining` / `x-ratelimit-reset` / `retry-after` headers go into a small rate-limit store, **keyed by bucket**. `search` and `core` are separate budgets, so running out of one must not block the other.
@@ -45,6 +61,7 @@ Any token bundled into a mobile app is extractable from the binary. Proper authe
 - **A token for local development only.** Considered, then dropped by the project owner to keep the setup simple and remove any risk of it leaking into a release build.
 - **OAuth device flow** (user signs in): lifts limits to 30 requests/min for search and 5,000/hour for the rest. Worthwhile with more time; listed in the README.
 - **Backend proxy with a server-side token and shared caching.** The production answer at scale; out of scope.
+- **Conditional requests (`ETag` / `If-None-Match`).** GitHub's `304 Not Modified` answers are free only for authenticated requests. Tested on 2026-09-27 without a token: each `304` still took one request off the core budget (53 → 52 → 51). They would save bandwidth, not budget, so they're not worth the client complexity here.
 
 ## Consequences
 

@@ -29,7 +29,7 @@ The project owner wants users to **save repos locally and view them offline**, w
 
 **Model:**
 
-- `SavedRepoSnapshotV1 = { version: 1, savedAt, refreshedAt, repo: RepoDetails | RepoSummary, owner?: OwnerDetails }`. It holds domain types, never API shapes, and dates are ISO strings.
+- `SavedRepoSnapshotV1 = { version: 1, savedAt, refreshedAt, repo: RepoDetails, owner?: OwnerDetails }`. It holds domain types, never API shapes, and dates are ISO strings.
 - **Store shape:** `{ byId: Record<RepoId, Snapshot>, order: RepoId[], idByFullName: Record<string, RepoId> }`.
   - Keyed by the numeric repo `id`, which survives renames.
   - `idByFullName` (lowercased) lets Details look a snapshot up from its route params (`owner`, `name`), which carry no id.
@@ -37,8 +37,8 @@ The project owner wants users to **save repos locally and view them offline**, w
 - **Loading from disk:** each entry is validated with Zod. Invalid entries are dropped and logged, never crashing the app.
 - **Upgrades:** Zustand `persist` `version` / `migrate` handles future changes to the snapshot shape.
 - **Complete snapshots on save, within budget:**
-  - Search items are already near-complete repo objects, so a snapshot is useful immediately.
-  - If the device is online and the core budget has at least 10 requests left, saving also fetches the full repo and the owner in the background, using `entities` query options (features may import entities), and completes the snapshot.
+  - Search results carry every repo field Details shows (ADR-0012), so a snapshot saved from search is complete except for the owner profile.
+  - If the device is online and the core budget is above the reserve (ADR-0012), saving also fetches the owner profile in the background, using `entities` query options (features may import entities). A snapshot saved from a deep-linked repo already has everything the screen loaded.
   - Otherwise it's completed on the next online Details view (`useSyncSnapshot`).
   - Offline Details without owner data says "owner details weren't saved" in that section.
 
@@ -57,21 +57,21 @@ We'd move to file storage only if the saved count grows large; there's a soft ca
 
 ```
 screens/repo-details/useRepoDetailsView.ts
-   ├─ entities/repo:       useRepository(owner, name)      // cache may hold full data, seeded partial data, or nothing
+   ├─ entities/repo:       useRepository(owner, name)      // cache may hold live data, data copied from search, or nothing
    ├─ features/save-repo:  useSavedSnapshot(fullName)      // via the lowercased idByFullName index
    ├─ features/save-repo:  useSyncSnapshot(liveRepo)       // updates only if saved and the data changed
    └─ resolveRepoDetailsView(query, snapshot) → view state (pure function)
 ```
 
-**What to show while loading:** full data (live or cached) > saved snapshot (complete but possibly older) > seeded partial data from search > skeleton. The resolver picks explicitly. The snapshot isn't passed as TanStack `placeholderData`, because placeholder data is ignored whenever the cache already holds seeded data.
+**What to show while loading:** data in the cache (live, or copied from search) > saved snapshot (complete but possibly older) > skeleton. The resolver picks explicitly. The snapshot isn't passed as TanStack `placeholderData`, because placeholder data is ignored whenever the cache already holds seeded data.
 
 | Live request            | Snapshot? | User sees                                                                                          |
 | ----------------------- | --------- | -------------------------------------------------------------------------------------------------- |
 | loading                 | yes       | snapshot straight away (unless full data is already cached), swapped for live data when it arrives |
-| loading                 | no        | pre-filled partial data from search, or a skeleton                                                 |
+| loading                 | no        | data copied from search, or a skeleton                                                             |
 | success                 | any       | live data; if saved and changed, the snapshot quietly updates                                      |
 | network / offline error | yes       | snapshot + "Saved snapshot · 3d ago" badge (no error state)                                        |
-| network / offline error | no        | pre-filled partial data + offline banner, or error state + Retry                                   |
+| network / offline error | no        | data copied from search + offline banner, or error state + Retry                                   |
 | 404                     | yes       | snapshot + "no longer available on GitHub" notice                                                  |
 | other error             | any       | typed error state + Retry (snapshot shown if present)                                              |
 
