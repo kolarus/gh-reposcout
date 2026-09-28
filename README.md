@@ -1,5 +1,9 @@
 # RepoScout
 
+[![CI](https://github.com/kolarus/gh-reposcout/actions/workflows/ci.yml/badge.svg)](https://github.com/kolarus/gh-reposcout/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/kolarus/gh-reposcout?include_prereleases&sort=semver)](https://github.com/kolarus/gh-reposcout/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/kolarus/gh-reposcout)](LICENSE)
+
 A cross-platform (iOS + Android) GitHub repository explorer built with React Native 0.87 and TypeScript: search repositories, browse results, open details, and save repos for offline viewing.
 
 <p align="center">
@@ -41,11 +45,22 @@ apksigner verify --print-certs RepoScout-1.0.0-arm64-v8a.apk | grep SHA-256
 | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | <img src="docs/media/screens/search.png" width="200" alt="Search results for react native"> | <img src="docs/media/screens/details.png" width="200" alt="Details of the react repository"> | <img src="docs/media/screens/saved.png" width="200" alt="The Saved tab with one repository"> | <img src="docs/media/screens/dark.png" width="200" alt="Search results in dark mode"> |
 
-- **Search**: results as you type (debounced), sorted by best match, stars or last update; 100 per page up to GitHub's 1,000-result cap; pull to refresh; recent and suggested searches.
-- **Details**: description, topics, website, a grid of stats and the owner's profile; open on GitHub or share.
-- **Saved for offline**: save any repository, with its owner's avatar; the Saved tab and those Details pages work in airplane mode.
-- **Built for a rate-limited API**: GitHub's unauthenticated limits are shown with a countdown and searches resume by themselves; the last results stay on screen offline.
-- **Light, dark or system theme**, deep links (`reposcout://repo/{owner}/{name}`), and an accessibility floor: every control has a role and a label.
+**What the brief asks for**
+
+- ✅ Search repositories by keyword (`search/repositories`, 100 per page)
+- ✅ A scrollable list of results: avatar, name, description, stars, language, last update
+- ✅ A details screen: owner info, stats, full description
+- ✅ TypeScript only, on the strictest settings, with no `any`
+- ✅ The bonus features: infinite scroll (up to GitHub's 1,000-result cap), dark mode, offline support
+- ✅ An APK on a GitHub Release, and this README: setup, key decisions, performance, what's next
+
+**Beyond the brief**
+
+- **Saved repositories** with offline snapshots, owner avatars included: the Saved tab and those Details pages work in airplane mode.
+- **GitHub's rate limits handled in the app**: a countdown, and searches resume by themselves (see [Handling GitHub's API limits](#handling-githubs-api-limits)).
+- Sort by best match, stars or last update; pull to refresh; recent and suggested searches.
+- Open on GitHub or share; deep links (`reposcout://repo/{owner}/{name}`); light, dark or system theme; haptics; a role and a label on every control.
+- Signed, verifiable releases; end-to-end tests on Android and iOS; scripted performance measurements.
 
 Screenshots and the GIF come from a scripted tour of the release build on Android (`yarn media:android`), so they can be regenerated after any UI change.
 
@@ -201,6 +216,15 @@ Three [Maestro](https://maestro.mobile.dev) flows drive the **release** build li
 - **In CI** ([`e2e.yml`](.github/workflows/e2e.yml)), nightly and on demand, on an Android 16 emulator with 16 KB memory pages, so every run also proves the app works on 16 KB-page devices ([ADR-0023](docs/adr/0023-platform-baseline.md)). Each run keeps its JUnit report, plus a screenshot and the view hierarchy of any failed step, as a downloadable artifact.
 - **Locally**, `yarn e2e:setup` once, then `yarn e2e:android` or `yarn e2e:ios`: a dedicated headless emulator or simulator boots, runs the flows and shuts down ([ADR-0021](docs/adr/0021-local-e2e-isolation.md)). iOS runs the first two flows (the simulator has no airplane mode).
 - The flows use the live GitHub API, so they check structure ("results appear", "the first row opens Details"), never specific repositories. For the same reason CI runs them nightly instead of on every push, and the local script retries a failed flow once.
+
+## Handling GitHub's API limits
+
+The app calls GitHub's API without signing in, so it lives within the unauthenticated limits: **10 searches a minute and 60 other requests an hour, per IP address** ([ADR-0012](docs/adr/0012-rate-limits-no-auth.md)). You may reach them while trying it, especially on a shared office network.
+
+- Typing is debounced (400 ms) and results are cached, so a search costs one request, and going back to it costs none.
+- Opening a result costs nothing: Details reuses the search result. Owner profiles are cached for an hour, and the last 5 requests of the hour are kept for what a screen can't do without.
+- At a limit, a banner counts down to the reset and the search resumes by itself; there's nothing to retry. GitHub's secondary limits get the same treatment.
+- Results already loaded stay on screen, and saved repositories work entirely offline.
 
 ## What I'd improve with more time
 
