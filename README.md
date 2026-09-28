@@ -2,7 +2,25 @@
 
 A cross-platform (iOS + Android) GitHub repository explorer built with React Native 0.87 and TypeScript: search repositories, browse results, open details, and save repos for offline viewing.
 
-> 🚧 **Work in progress.** The foundation (tooling, architecture rules, CI, decision records) is in place; features land phase by phase. Sections below marked _(coming)_ are filled in as they're built.
+<p align="center">
+  <img src="docs/media/demo.gif" width="300" alt="RepoScout on Android: searching for react native, opening a repository and saving it, the Saved tab, and dark mode">
+</p>
+
+> 🚧 **Almost there.** The app is feature-complete and tested; the signed release (APK) and the final docs come next.
+
+## Features
+
+| Search as you type                                                                          | Details                                                                                      | Saved for offline                                                                            | Dark mode                                                                             |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| <img src="docs/media/screens/search.png" width="200" alt="Search results for react native"> | <img src="docs/media/screens/details.png" width="200" alt="Details of the react repository"> | <img src="docs/media/screens/saved.png" width="200" alt="The Saved tab with one repository"> | <img src="docs/media/screens/dark.png" width="200" alt="Search results in dark mode"> |
+
+- **Search**: results as you type (debounced), sorted by best match, stars or last update; 100 per page up to GitHub's 1,000-result cap; pull to refresh; recent and suggested searches.
+- **Details**: description, topics, website, a grid of stats and the owner's profile; open on GitHub or share.
+- **Saved for offline**: save any repository, with its owner's avatar; the Saved tab and those Details pages work in airplane mode.
+- **Built for a rate-limited API**: GitHub's unauthenticated limits are shown with a countdown and searches resume by themselves; the last results stay on screen offline.
+- **Light, dark or system theme**, deep links (`reposcout://repo/{owner}/{name}`), and an accessibility floor: every control has a role and a label.
+
+Screenshots and the GIF come from a scripted tour of the release build on Android (`yarn media:android`), so they can be regenerated after any UI change.
 
 ## Quick start
 
@@ -46,6 +64,7 @@ yarn android   # or: yarn ios
 | `yarn e2e:android` / `yarn e2e:ios`                                  | Boot the test device headless, install the release build, run the Maestro flows, shut down (`--keep-alive`, `--headed`)                                                            |
 | `yarn e2e:record <platform>`                                         | The same flows, one screen recording per flow (README demo videos)                                                                                                                 |
 | `yarn perf:android`                                                  | Measure the release build on the test emulator: size, cold start, scrolling, memory ([ADR-0017](docs/adr/0017-performance-measurement.md))                                         |
+| `yarn media:android`                                                 | Regenerate the README's demo GIF and screenshots from a scripted tour of the release build                                                                                         |
 | `yarn brand:generate`                                                | Regenerate app icons and the launch screen from `assets/brand/*.svg` ([ADR-0023](docs/adr/0023-platform-baseline.md))                                                              |
 | `yarn arch:graph`                                                    | Regenerate the [architecture graph](docs/architecture-graph.md) from the real imports                                                                                              |
 | `yarn release:prepare <x.y.z>`                                       | Set the app version everywhere ([ADR-0016](docs/adr/0016-ci-cd-and-release.md))                                                                                                    |
@@ -80,8 +99,6 @@ All decisions are recorded as [Architecture Decision Records](docs/adr/README.md
 | Lists & images | FlashList v2, core `Image` with server-resized avatars              | [ADR-0009](docs/adr/0009-lists-and-images.md)                                                                                     |
 | GitHub limits  | No auth, no secrets; rate limits handled in the UX                  | [ADR-0012](docs/adr/0012-rate-limits-no-auth.md)                                                                                  |
 | Testing        | Jest + React Native Testing Library + MSW; Maestro end-to-end       | [ADR-0013](docs/adr/0013-testing-strategy.md)                                                                                     |
-
-## Features _(coming)_
 
 ## Performance
 

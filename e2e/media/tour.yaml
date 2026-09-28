@@ -1,0 +1,62 @@
+# `yarn media:android`: a short tour of the release build for the README's
+# demo GIF and screenshots (ADR-0021). Not a test: e2e/config.yaml runs only
+# e2e/flows/. The pauses are for the viewer.
+appId: com.bohdanmorozov.reposcout
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Search repositories'
+    timeout: 10000
+- startRecording: tour
+
+# Search, and the results.
+- runFlow:
+    file: ../flows/subflows/search.yaml
+    env:
+      QUERY: react native
+# Long enough for the avatars to load before the screenshot.
+- runFlow: { file: pause.yaml, env: { MS: 1500 } }
+- takeScreenshot: search
+
+# A repository, saved for offline use.
+- tapOn:
+    text: '[^,]+/[^,]+, .* stars, .*'
+    index: 0
+- extendedWaitUntil:
+    visible: 'Open on GitHub'
+    timeout: 10000
+- waitForAnimationToEnd
+- runFlow: { file: pause.yaml, env: { MS: 1000 } }
+- takeScreenshot: details
+- tapOn: 'Save .+'
+- assertVisible: 'Remove .+ from Saved'
+- runFlow: { file: pause.yaml, env: { MS: 800 } }
+- back
+
+# Scrolling the results.
+- scroll
+- scroll
+- runFlow: { file: pause.yaml, env: { MS: 600 } }
+
+# The saved copy.
+- tapOn:
+    id: 'tab-saved'
+- assertVisible: '1 saved repository'
+- waitForAnimationToEnd
+- takeScreenshot: saved
+- runFlow: { file: pause.yaml, env: { MS: 1000 } }
+
+# Dark mode, then the results again from the top.
+- tapOn:
+    id: 'tab-settings'
+- tapOn: 'Dark'
+- runFlow: { file: pause.yaml, env: { MS: 800 } }
+- tapOn:
+    id: 'tab-search'
+- tapOn:
+    id: 'tab-search'
+- waitForAnimationToEnd
+- takeScreenshot: dark
+- runFlow: { file: pause.yaml, env: { MS: 1200 } }
+- stopRecording

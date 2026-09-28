@@ -27,6 +27,7 @@
     "e2e:ios": "bash scripts/e2e/run.sh ios",
     "e2e:record": "bash scripts/e2e/run.sh --record",
     "perf:android": "bash scripts/perf/android.sh",
+    "media:android": "bash scripts/media/android.sh",
     "release:prepare": "node scripts/sync-version.mts",
     "validate": "yarn check:node && yarn typecheck && yarn lint && yarn format:check && yarn check:architecture && yarn check:docs && yarn check:version && yarn check:bundle && yarn knip && yarn test:scripts && yarn test",
     "postinstall": "lefthook install"

@@ -36,6 +36,8 @@ As of 2026-09-26, `sdkmanager` is deprecated in cmdline-tools 23 in favour of th
 
 **`yarn e2e:record <platform>`:** the same run with `RECORD=true` and Android animations on, used to produce the README demo videos repeatably. Each flow records itself (Maestro's `startRecording` / `stopRecording`, in shared subflows that do nothing unless `RECORD` is set), so a video spans exactly its flow; the script copies them to `e2e/artifacts/<platform>/<flow>.mp4`, a retake's video replacing the failed take's. Recording from outside the flow was tried and dropped: stopping the adb client doesn't stop the device's `screenrecord`, so every video ran to its 3-minute cap.
 
+**`yarn media:android`:** the README's demo GIF and screenshots, from a scripted tour of the release build (`e2e/media/tour.yaml`, outside the E2E suite) on the same emulator, with Android's demo mode for a clean status bar. The tour records itself; the frames are extracted with AVFoundation (`scripts/media/frames.swift`, part of macOS, so no ffmpeg) and joined into a looping GIF with `sharp`, already a dev dependency. Output goes to `docs/media/`, so it's regenerated after a UI change rather than captured by hand.
+
 **Retry:** every run (recording or not) runs all the flows, then the failed ones once more; the retry decides the result.
 
 ## Alternatives considered

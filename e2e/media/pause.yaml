@@ -1,0 +1,8 @@
+# Holds the screen for ${MS} ms, for the viewer: Maestro has no sleep, so this
+# waits for text that never appears and carries on.
+appId: com.bohdanmorozov.reposcout
+---
+- extendedWaitUntil:
+    visible: 'A pause for the viewer: this text never appears'
+    timeout: ${MS}
+    optional: true
