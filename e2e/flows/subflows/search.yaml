@@ -1,0 +1,13 @@
+# Types ${QUERY} into the search field and waits for results. Checks the
+# field shows the text before waiting, so lost typing fails here, clearly: on
+# a busy Android cold start the keyboard can miss the input-session restart
+# React Native causes on the autofocused field, and then drops every key.
+appId: com.bohdanmorozov.reposcout
+---
+- tapOn: 'Search repositories'
+- inputText: ${QUERY}
+- assertVisible: ${QUERY}
+- hideKeyboard
+- extendedWaitUntil:
+    visible: '[0-9,]+ repositories'
+    timeout: 20000

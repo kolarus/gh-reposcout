@@ -12,6 +12,7 @@ A cross-platform (iOS + Android) GitHub repository explorer built with React Nat
 - Android: JDK 17, Android Studio with SDK platform 37 and build-tools 37
 - iOS: Xcode 26+, Ruby 3.x with Bundler (CocoaPods comes from the `Gemfile`)
 - Watchman (recommended)
+- End-to-end tests only: [Maestro](https://maestro.mobile.dev) 2.10.0 in `~/.maestro` (or set `MAESTRO` to its path), then `yarn e2e:setup`
 
 **Run**
 
@@ -41,6 +42,9 @@ yarn android   # or: yarn ios
 | `yarn lint` · `yarn typecheck` · `yarn format`                       | Individual checks / formatting                                                                                                                                                     |
 | `yarn check:architecture` · `yarn check:docs` · `yarn check:version` | Structural, documentation and version checks ([ADR-0022](docs/adr/0022-architecture-enforcement.md))                                                                               |
 | `yarn check:bundle`                                                  | Release Metro bundle for Android and iOS: catches build problems Jest can't ([ADR-0013](docs/adr/0013-testing-strategy.md))                                                        |
+| `yarn e2e:setup`                                                     | Create the dedicated end-to-end emulator and simulator (once; [ADR-0021](docs/adr/0021-local-e2e-isolation.md))                                                                    |
+| `yarn e2e:android` / `yarn e2e:ios`                                  | Boot the test device headless, install the release build, run the Maestro flows, shut down (`--keep-alive`, `--headed`)                                                            |
+| `yarn e2e:record <platform>`                                         | The same flows, one screen recording per flow (README demo videos)                                                                                                                 |
 | `yarn brand:generate`                                                | Regenerate app icons and the launch screen from `assets/brand/*.svg` ([ADR-0023](docs/adr/0023-platform-baseline.md))                                                              |
 | `yarn arch:graph`                                                    | Regenerate the [architecture graph](docs/architecture-graph.md) from the real imports                                                                                              |
 | `yarn release:prepare <x.y.z>`                                       | Set the app version everywhere ([ADR-0016](docs/adr/0016-ci-cd-and-release.md))                                                                                                    |

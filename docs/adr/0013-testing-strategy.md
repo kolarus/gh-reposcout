@@ -26,7 +26,8 @@ As of 2026-09-26:
 
 **Rules:**
 
-- Query by role and text (accessibility-first). Use `testID` only where Maestro needs it.
+- Query by role and text (accessibility-first). Use `testID` only where Maestro needs it: so far the tab buttons (`tab-search`, `tab-saved`, `tab-settings`), because a label like "Settings" also matches the keyboard's own settings button.
+- End-to-end flows live in `e2e/flows/` (`search-to-details`, `theme`, `save-offline`, the last tagged `android-only`) and search a stable, popular query (`zustand`), acting on whatever rows come back rather than on specific repositories.
 - **Accessibility floor:** every screen test calls `expectAccessiblePressables()` (`src/test/a11y.ts`) in a representative state. It fails if any pressable a screen reader can reach lacks a role or a name (ADR-0023).
 - Gestures a screen test needs have helpers in `src/test`, e.g. `pullToRefresh()`.
 - Jest's `clearMocks` is on: every test starts with empty call records, so a spy shared across tests counts only its own test's calls.

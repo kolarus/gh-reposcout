@@ -42,22 +42,36 @@ const repoScreenId = (params: object | undefined): string | undefined =>
     ? `${params.owner}/${params.name}`.toLowerCase()
     : undefined;
 
+// Tab buttons carry test IDs for the end-to-end flows (ADR-0013): a label
+// like "Settings" also matches the keyboard's own settings button.
 const Tabs = createBottomTabNavigator({
   screenLayout: ScreenLayout,
   screens: {
     Search: {
       screen: SearchScreen,
-      options: { title: strings.tabs.search, tabBarIcon: tabIcon('search') },
+      options: {
+        title: strings.tabs.search,
+        tabBarIcon: tabIcon('search'),
+        tabBarButtonTestID: 'tab-search',
+      },
       linking: '',
     },
     Saved: {
       screen: SavedScreen,
-      options: { title: strings.tabs.saved, tabBarIcon: tabIcon('bookmark') },
+      options: {
+        title: strings.tabs.saved,
+        tabBarIcon: tabIcon('bookmark'),
+        tabBarButtonTestID: 'tab-saved',
+      },
       linking: 'saved',
     },
     Settings: {
       screen: SettingsScreen,
-      options: { title: strings.tabs.settings, tabBarIcon: tabIcon('gear') },
+      options: {
+        title: strings.tabs.settings,
+        tabBarIcon: tabIcon('gear'),
+        tabBarButtonTestID: 'tab-settings',
+      },
       linking: 'settings',
     },
   },
@@ -70,9 +84,14 @@ const Tabs = createBottomTabNavigator({
 export const RootStack = createNativeStackNavigator({
   initialRouteName: 'Tabs',
   screenLayout: ScreenLayout,
-  // iOS labels Back with the previous route's title, which would be "Tabs";
-  // a bare chevron matches iOS 26 system apps. Android shows no label anyway.
-  screenOptions: { headerBackButtonDisplayMode: 'minimal' },
+  // iOS labels Back with the previous route's title, which would be "Tabs":
+  // a bare chevron matches iOS 26 system apps, and `headerBackTitle` stays
+  // as its VoiceOver label (without it, VoiceOver read "Tabs"). Android
+  // shows no label and says "Navigate up".
+  screenOptions: {
+    headerBackButtonDisplayMode: 'minimal',
+    headerBackTitle: strings.common.back,
+  },
   screens: {
     Tabs: {
       screen: Tabs,

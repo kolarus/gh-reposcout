@@ -1,0 +1,35 @@
+# Flow 3 (ADR-0013, ADR-0020): save a repository, go offline, open it from
+# Saved: Details shows the saved copy. Android only: iOS simulators have no
+# airplane mode.
+appId: com.bohdanmorozov.reposcout
+name: save-offline
+tags:
+  - android-only
+---
+- runFlow:
+    file: subflows/start-recording.yaml
+    env:
+      NAME: save-offline
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/search.yaml
+    env:
+      QUERY: zustand
+# The first result, saved from its row without opening Details, so only the
+# snapshot has it. Structure only: live rankings may change (ADR-0013).
+- tapOn:
+    text: 'Save .+'
+    index: 0
+- assertVisible: 'Remove .+ from Saved'
+- setAirplaneMode: enabled
+- tapOn:
+    id: 'tab-saved'
+- assertVisible: '1 saved repository'
+- tapOn: '[^,]+/[^,]+, .* stars, .*'
+- extendedWaitUntil:
+    visible: 'Saved copy · updated .*'
+    timeout: 10000
+- assertVisible: 'Open on GitHub'
+- setAirplaneMode: disabled
+- runFlow: subflows/stop-recording.yaml

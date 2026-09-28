@@ -1,0 +1,27 @@
+# Asserts which theme segment is checked (${THEME}: System or Dark). Android
+# reports a radio's state as `checked`; iOS puts it in the accessibility value
+# ("radio button, checked"), so there the segment is found by its position
+# next to Light.
+appId: com.bohdanmorozov.reposcout
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertVisible:
+          text: ${THEME}
+          checked: true
+- runFlow:
+    when:
+      true: ${maestro.platform == 'ios' && THEME == 'Dark'}
+    commands:
+      - assertVisible:
+          text: 'radio button, checked'
+          rightOf: 'Light'
+- runFlow:
+    when:
+      true: ${maestro.platform == 'ios' && THEME == 'System'}
+    commands:
+      - assertVisible:
+          text: 'radio button, checked'
+          leftOf: 'Light'

@@ -1,0 +1,11 @@
+# Maestro workspace (ADR-0013, ADR-0021). Run through `yarn e2e:android` /
+# `yarn e2e:ios`, which start the dedicated devices and install the release build.
+# Top-level flows only; flows/subflows/ holds steps they share.
+flows:
+  - 'flows/*.yaml'
+executionOrder:
+  continueOnFailure: true
+  flowsOrder:
+    - search-to-details
+    - theme
+    - save-offline

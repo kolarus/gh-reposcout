@@ -5,6 +5,7 @@
 export const strings = {
   common: {
     cancel: 'Cancel',
+    back: 'Back',
   },
   tabs: {
     search: 'Search',

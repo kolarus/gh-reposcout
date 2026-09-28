@@ -1,0 +1,7 @@
+appId: com.bohdanmorozov.reposcout
+---
+- runFlow:
+    when:
+      true: ${RECORD == 'true'}
+    commands:
+      - stopRecording

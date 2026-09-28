@@ -1,0 +1,11 @@
+# Search's field has focus at launch and the keyboard covers the tab bar:
+# let it finish opening, close it, then open the Settings tab.
+appId: com.bohdanmorozov.reposcout
+---
+- extendedWaitUntil:
+    visible: 'Search repositories'
+    timeout: 10000
+- waitForAnimationToEnd
+- hideKeyboard
+- tapOn:
+    id: 'tab-settings'

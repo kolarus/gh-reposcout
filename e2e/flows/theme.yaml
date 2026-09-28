@@ -1,0 +1,32 @@
+# Flow 2 (ADR-0013): the in-app theme wins over the system and survives a
+# restart.
+appId: com.bohdanmorozov.reposcout
+name: theme
+tags:
+  - smoke
+---
+- runFlow:
+    file: subflows/start-recording.yaml
+    env:
+      NAME: theme
+- launchApp:
+    clearState: true
+- runFlow: subflows/open-settings.yaml
+- tapOn: 'Dark'
+- runFlow:
+    file: subflows/assert-theme.yaml
+    env:
+      THEME: Dark
+- stopApp
+- launchApp
+- runFlow: subflows/open-settings.yaml
+- runFlow:
+    file: subflows/assert-theme.yaml
+    env:
+      THEME: Dark
+- tapOn: 'System'
+- runFlow:
+    file: subflows/assert-theme.yaml
+    env:
+      THEME: System
+- runFlow: subflows/stop-recording.yaml

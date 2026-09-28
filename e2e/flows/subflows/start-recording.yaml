@@ -1,0 +1,9 @@
+# `yarn e2e:record` passes RECORD=true: the flow records itself, so the video
+# spans exactly the flow (ADR-0021). Otherwise nothing happens.
+appId: com.bohdanmorozov.reposcout
+---
+- runFlow:
+    when:
+      true: ${RECORD == 'true'}
+    commands:
+      - startRecording: ${NAME}

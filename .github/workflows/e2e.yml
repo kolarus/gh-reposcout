@@ -1,0 +1,78 @@
+# Android end-to-end tests with Maestro (ADR-0013, ADR-0016, ADR-0021): the
+# same flows as `yarn e2e:android`, on the same kind of device (Android 16 with
+# 16 KB pages). Non-blocking, nightly and on demand: they use the live,
+# rate-limited GitHub API from shared runner IP addresses, so they can flake.
+name: E2E
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAESTRO_VERSION: 2.10.0
+  # SHA-256 of maestro.zip, as published on the cli-2.10.0 GitHub release.
+  MAESTRO_SHA256: 29b675e10cc12080e445e9bfb2e2b4e4dfb9c0f2e30d5884120d258b5e1cd991
+
+jobs:
+  android:
+    name: Android end-to-end (Maestro)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-js
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: zulu
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          add-job-summary: on-failure
+      - name: Build the release APK (x86_64)
+        working-directory: android
+        # No signing secrets here: the release build falls back to the debug
+        # key (ADR-0016), and still catches R8 problems only release shows.
+        run: ./gradlew app:assembleRelease -PreactNativeArchitectures=x86_64
+      - name: Install Maestro
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/maestro.zip" \
+            "https://github.com/mobile-dev-inc/maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_SHA256}  $RUNNER_TEMP/maestro.zip" | sha256sum --check -
+          unzip -q "$RUNNER_TEMP/maestro.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/maestro/bin" >> "$GITHUB_PATH"
+      - name: Enable KVM (hardware-accelerated emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the flows
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 36
+          target: google_apis_ps16k
+          arch: x86_64
+          profile: pixel_7
+          ram-size: 4096M
+          disable-animations: true
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot-save -gpu swiftshader_indirect
+          script: |
+            adb install -r android/app/build/outputs/apk/release/app-release.apk
+            maestro test e2e --format JUNIT --output e2e/artifacts/android/junit.xml --test-output-dir e2e/artifacts/android
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-android
+          path: e2e/artifacts/android
+          retention-days: 14

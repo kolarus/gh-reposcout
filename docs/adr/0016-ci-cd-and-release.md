@@ -22,7 +22,7 @@ A production-like release should be reproducible, signed with a stable key, and 
 | Android end-to-end (Maestro, `reactivecircus/android-emulator-runner`, hardware-accelerated emulator), **non-blocking** | nightly, manual                                                                                   | ubuntu        |
 | Release                                                                                                                 | tag `v*`                                                                                          | ubuntu (APKs) |
 
-Android end-to-end tests don't block merges, because they run against the live, rate-limited GitHub API and can be flaky. GitHub-hosted runners also share IP addresses, so the unauthenticated per-IP limits may already be partly used by other workflows. The improvements backlog holds: making them blocking (after a mock-server variant), iOS end-to-end tests in CI, and the iOS simulator `.app` on releases.
+The end-to-end workflow (`e2e.yml`, 04:00 nightly and on demand) builds the release APK for x86_64, installs Maestro (pinned version, SHA-256 checked) and runs `e2e/flows` on an Android 16, 16 KB-page emulator, the same device type as locally (ADR-0021). The JUnit report and failure screenshots are uploaded as an artifact. Android end-to-end tests don't block merges, because they run against the live, rate-limited GitHub API and can be flaky. GitHub-hosted runners also share IP addresses, so the unauthenticated per-IP limits may already be partly used by other workflows. The improvements backlog holds: making them blocking (after a mock-server variant), iOS end-to-end tests in CI, and the iOS simulator `.app` on releases.
 
 **Guardrails on every workflow:**
 

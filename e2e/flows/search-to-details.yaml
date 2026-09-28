@@ -1,0 +1,45 @@
+# Flow 1 (ADR-0013): search, scroll the results, open a repository, go back.
+# Runs against the live GitHub API: `zustand` is a stable, popular query.
+appId: com.bohdanmorozov.reposcout
+name: search-to-details
+tags:
+  - smoke
+---
+- runFlow:
+    file: subflows/start-recording.yaml
+    env:
+      NAME: search-to-details
+- launchApp:
+    clearState: true
+- runFlow:
+    file: subflows/search.yaml
+    env:
+      QUERY: zustand
+- scroll
+- scroll
+# Back to the top: iOS lists rows scrolled out of view too, so the first match
+# must be on screen before it's tapped.
+- scrollUntilVisible:
+    element: '[0-9,]+ repositories'
+    direction: UP
+# The first result row: its label is "owner/name, …, N stars, …".
+- tapOn:
+    text: '[^,]+/[^,]+, .* stars, .*'
+    index: 0
+- extendedWaitUntil:
+    visible: 'Open on GitHub'
+    timeout: 10000
+- assertVisible: 'Share'
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: 'Back'
+- assertVisible: 'Search repositories'
+- assertNotVisible: 'Open on GitHub'
+- runFlow: subflows/stop-recording.yaml
