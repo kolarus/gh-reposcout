@@ -84,7 +84,25 @@ All decisions are recorded as [Architecture Decision Records](docs/adr/README.md
 
 ## Performance _(coming)_
 
-## Testing _(coming)_
+## Testing
+
+Unit and integration tests use Jest, React Native Testing Library and MSW, and run in `yarn validate` before every push and in CI ([ADR-0013](docs/adr/0013-testing-strategy.md)).
+
+### End-to-end (Maestro)
+
+[![E2E](https://github.com/kolarus/gh-reposcout/actions/workflows/e2e.yml/badge.svg)](https://github.com/kolarus/gh-reposcout/actions/workflows/e2e.yml)
+
+Three [Maestro](https://maestro.mobile.dev) flows drive the **release** build like a user would:
+
+| Flow                     | What it proves                                                                          |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `search-to-details`      | Search, scroll the results, open a repository, go back to Search                        |
+| `theme`                  | Switch to dark mode, restart the app: still selected; back to the system setting        |
+| `save-offline` (Android) | Save a repository, turn on airplane mode, open it from Saved: the offline copy is shown |
+
+- **In CI** ([`e2e.yml`](.github/workflows/e2e.yml)), nightly and on demand, on an Android 16 emulator with 16 KB memory pages, so every run also proves the app works on 16 KB-page devices ([ADR-0023](docs/adr/0023-platform-baseline.md)). Each run keeps its JUnit report, plus a screenshot and the view hierarchy of any failed step, as a downloadable artifact.
+- **Locally**, `yarn e2e:setup` once, then `yarn e2e:android` or `yarn e2e:ios`: a dedicated headless emulator or simulator boots, runs the flows and shuts down ([ADR-0021](docs/adr/0021-local-e2e-isolation.md)). iOS runs the first two flows (the simulator has no airplane mode).
+- The flows use the live GitHub API, so they check structure ("results appear", "the first row opens Details"), never specific repositories. For the same reason CI runs them nightly instead of on every push, and the local script retries a failed flow once.
 
 ## What I'd improve with more time _(coming)_
 
