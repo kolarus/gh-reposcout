@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { repoSchema, toRepoDetails, type RepoDetails } from '@/entities/repo';
 import { useRateLimit } from '@/shared/api';
 import { savedAvatarStorage } from '@/shared/storage';
+import { createGate } from '@/test/gate';
 import {
   AVATAR_BYTES,
   AVATAR_DATA_URI,
@@ -121,5 +122,42 @@ describe('saved avatars (via useToggleSaved)', () => {
     expect(useSavedRepos.getState().order).toEqual([]);
     // Both saves checked the store first: one download for the owner.
     expect(counts.avatar).toBeLessThanOrEqual(2);
+  });
+  it("doesn't keep an avatar that finishes downloading after the repo was unsaved", async () => {
+    const gate = createGate();
+    server.use(
+      http.get(AVATAR_URL, async () => {
+        await gate.opened;
+        return new HttpResponse(AVATAR_BYTES, {
+          headers: { 'content-type': 'image/png' },
+        });
+      }),
+      http.get(USER_URL, ({ params }) =>
+        HttpResponse.json(buildUserDto(String(params['login']))),
+      ),
+    );
+    const queryClient = createTestQueryClient();
+    const { result } = await renderHook(() => useToggleSaved(), {
+      wrapper: createWrapper(queryClient),
+    });
+    const saved = repo(1, 'acme');
+
+    await act(() => {
+      result.current(saved);
+      result.current(saved);
+    });
+    const downloaded = new Promise<void>(resolve => {
+      server.events.on('response:mocked', ({ request }) => {
+        if (request.url.startsWith('https://avatars.')) resolve();
+      });
+    });
+    gate.open();
+    await act(() => downloaded);
+    await waitFor(() => {
+      expect(queryClient.isFetching()).toBe(0);
+    });
+
+    expect(savedAvatarStorage.contains('acme')).toBe(false);
+    server.events.removeAllListeners('response:mocked');
   });
 });

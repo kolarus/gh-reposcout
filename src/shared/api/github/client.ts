@@ -77,39 +77,61 @@ function withTimeout(signal: AbortSignal | undefined, timeoutMs: number) {
   };
 }
 
+const messageOf = (body: unknown): string | undefined =>
+  typeof body === 'object' &&
+  body !== null &&
+  'message' in body &&
+  typeof body.message === 'string'
+    ? body.message
+    : undefined;
+
+/**
+ * How long to wait out a secondary rate limit that names no time: GitHub's
+ * docs say at least a minute.
+ */
+const SECONDARY_LIMIT_WAIT_MS = 60_000;
+
 /** Maps a non-2xx response to an ApiError (classification table: ADR-0018). */
-function classify(response: Response, body: unknown, now: number): ApiError {
+function classify(
+  response: Response,
+  body: unknown,
+  path: string,
+  now: number,
+): ApiError {
   const { status, headers } = response;
   const retryAfter = headers.get('retry-after');
   const exhausted = headers.get('x-ratelimit-remaining') === '0';
+  // A secondary limit can come without either header. It's told apart from a
+  // plain 403 (e.g. a blocked repository) by GitHub's message.
+  const secondary = /secondary rate limit/i.test(messageOf(body) ?? '');
 
   if (
     (status === 403 || status === 429) &&
-    (exhausted || retryAfter !== null)
+    (exhausted || retryAfter !== null || secondary)
   ) {
     const reset = Number(headers.get('x-ratelimit-reset'));
     const resetAt =
       retryAfter !== null
         ? new Date(now + Number(retryAfter) * 1000)
-        : Number.isFinite(reset) && reset > 0
+        : exhausted && Number.isFinite(reset) && reset > 0
           ? new Date(reset * 1000)
-          : new Date(now + 60_000);
+          : new Date(now + SECONDARY_LIMIT_WAIT_MS);
     return {
       kind: 'rate-limited',
-      resource: toResource(headers.get('x-ratelimit-resource')),
+      // Without the header, the path says which bucket the request was in.
+      resource: toResource(
+        headers.get('x-ratelimit-resource') ??
+          (path.startsWith('/search/') ? 'search' : null),
+      ),
       resetAt: resetAt.toISOString(),
     };
   }
   if (status === 404) return { kind: 'not-found' };
   if (status === 422) {
-    const message =
-      typeof body === 'object' &&
-      body !== null &&
-      'message' in body &&
-      typeof body.message === 'string'
-        ? body.message
-        : 'Unprocessable request';
-    return { kind: 'validation', message };
+    return {
+      kind: 'validation',
+      message: messageOf(body) ?? 'Unprocessable request',
+    };
   }
   return { kind: 'http', status };
 }
@@ -170,7 +192,7 @@ export function createGitHubClient(
 
         const body = await readJson(response);
         if (!response.ok)
-          throw new ApiRequestError(classify(response, body, now()));
+          throw new ApiRequestError(classify(response, body, path, now()));
 
         const parsed = schema.safeParse(body);
         if (!parsed.success) {

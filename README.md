@@ -87,11 +87,11 @@ All decisions are recorded as [Architecture Decision Records](docs/adr/README.md
 
 Measured on the **release build** on the dedicated Android emulator, by a script anyone can re-run: `yarn perf:android` ([ADR-0017](docs/adr/0017-performance-measurement.md)). Emulator numbers are relative evidence, not a claim about a particular phone (see the caveats below).
 
-| The brief asks for | Result (release build, 28 Sep 2026)                                                                                                                                                                                                                                                                                                                                                                                | Screenshot                                                                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| 60 FPS scrolling   | **1.0% janky frames** (30 of 2,985) and no slow UI-thread frames, flinging through all 1,000 results of a search while nine more pages load                                                                                                                                                                                                                                                                        | [GPU bars](docs/media/perf/scroll-gpu-bars.png) (release) · [Perf Monitor](docs/media/perf/scroll-perf-monitor.png) (debug: 58–60 fps) |
-| Fast startup       | **97 ms** to the first frame, median of 10 cold starts                                                                                                                                                                                                                                                                                                                                                             | [Startup trace](docs/media/perf/startup-trace.png) (release, traced)                                                                   |
-| Low memory         | **104 → 171 MB** PSS on the test emulator (`dumpsys meminfo`) after scrolling all 1,000 results, 157 MB once in the background. Rows are recycled (228 → 267 views) and decoded images evicted (261 bitmaps). Repeating the search stays flat (169 MB after each clear); each new 1,000-result search adds about 6 MB (its results stay in memory for a day, for offline use, about 2 MB; the rest is image cache) | [Memory timeline](docs/media/perf/memory-timeline.png) (release)                                                                       |
+| The brief asks for | Result (release build, 28 Sep 2026)                                                                                                                                                                                                                                                                                                                                                      | Screenshot                                                                                                                             |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 60 FPS scrolling   | **1.0% janky frames** (30 of 2,985) and no slow UI-thread frames, flinging through all 1,000 results of a search while nine more pages load                                                                                                                                                                                                                                              | [GPU bars](docs/media/perf/scroll-gpu-bars.png) (release) · [Perf Monitor](docs/media/perf/scroll-perf-monitor.png) (debug: 58–60 fps) |
+| Fast startup       | **97 ms** to the first frame, median of 10 cold starts                                                                                                                                                                                                                                                                                                                                   | [Startup trace](docs/media/perf/startup-trace.png) (release, traced)                                                                   |
+| Low memory         | **104 → 171 MB** PSS on the test emulator (`dumpsys meminfo`) after scrolling all 1,000 results, 157 MB once in the background. Rows are recycled (228 → 267 views) and decoded images evicted (261 bitmaps). Repeating the search stays flat (169 MB after each clear); only the 5 most recent searches stay in memory (before that cap, each new 1,000-result search added about 6 MB) | [Memory timeline](docs/media/perf/memory-timeline.png) (release)                                                                       |
 
 Supporting evidence:
 
@@ -128,7 +128,19 @@ Supporting evidence:
 
 ## Testing
 
-Unit and integration tests use Jest, React Native Testing Library and MSW, and run in `yarn validate` before every push and in CI ([ADR-0013](docs/adr/0013-testing-strategy.md)).
+Two layers: fast unit and integration tests on every push, and end-to-end flows on a real emulator ([ADR-0013](docs/adr/0013-testing-strategy.md)).
+
+### Unit and integration (Jest)
+
+**299 tests, 95% of statements and 86% of branches covered** (`yarn test --coverage`), run by `yarn validate` before every push and in CI. They use React Native Testing Library and MSW, so screens are tested the way a user sees them, against a fake GitHub API:
+
+- **Every screen state**: loading, results, empty, error by kind, offline, rate-limited, and a saved copy standing in.
+- **The API client**: rate limits (including GitHub's secondary limits), timeouts, cancellation, and validation of every response.
+- **Search behaviour**: debounce, paging up to GitHub's 1,000-result cap, the cache, and a scripted session that counts GitHub requests exactly (the network table under Performance).
+- **Offline and saved repos**: snapshots, their avatars, and data that no longer validates being dropped instead of crashing.
+- **Accessibility floor**: every screen test checks that each control has a role and a label.
+
+No test waits on a timer: gates and fake timers keep them deterministic (lint-enforced).
 
 ### End-to-end (Maestro)
 
@@ -146,7 +158,40 @@ Three [Maestro](https://maestro.mobile.dev) flows drive the **release** build li
 - **Locally**, `yarn e2e:setup` once, then `yarn e2e:android` or `yarn e2e:ios`: a dedicated headless emulator or simulator boots, runs the flows and shuts down ([ADR-0021](docs/adr/0021-local-e2e-isolation.md)). iOS runs the first two flows (the simulator has no airplane mode).
 - The flows use the live GitHub API, so they check structure ("results appear", "the first row opens Details"), never specific repositories. For the same reason CI runs them nightly instead of on every push, and the local script retries a failed flow once.
 
-## What I'd improve with more time _(coming)_
+## What I'd improve with more time
+
+Left out on purpose, each with the reason. Everything below was weighed in a backlog review at the end of Phase 5; the one item picked (keeping at most five searches in memory) is done.
+
+**Testing and CI**
+
+- **Deterministic end-to-end tests** against a mock-server build of the app. The live, rate-limited GitHub API makes today's flows occasionally flaky, which is why they run nightly and don't block merges.
+- **iOS end-to-end tests in CI**, and an offline flow on iOS: macOS runners are slow, and iOS simulators have no airplane mode.
+- **Render-performance tests (Reassure)** in CI, and a **coverage gate** on the critical modules: coverage is reported, not enforced.
+
+**Performance**
+
+- **Measurements on real phones**, Android and iPhone. Everything today comes from an emulator, and iOS isn't measured at all (see Performance).
+- **Time to the first screen of content** (`reportFullyDrawn()`, which needs a small native module), and a breakdown of startup.
+- **A smaller launch-screen logo**: it's decoded on the main thread before the first frame, about 40 ms in a traced launch.
+- A FlatList-versus-FlashList comparison, as a table.
+
+**Accessibility** (today: a role and a label on every control, checked by every screen's tests)
+
+- **A full pass**: Dynamic Type up to 200%, a contrast audit of both themes, screen-reader announcements (result count, errors, save and unsave), reduced motion, and a check with the Accessibility Inspector that VoiceOver reaches every row's save button.
+
+**Product**
+
+- GitHub's own reason when a query is invalid, instead of a general hint.
+- Search-term highlighting, a language filter, undo after removing a saved repo, and a search deep link.
+- Reopening where you were after Android recreates the app (today it reopens on Search; nothing is lost).
+- A launch screen that follows the in-app theme; it follows the system theme today.
+- Predictive-back animations on Android 16: blocked upstream in React Native 0.87. Back itself works.
+
+**Beyond this project**
+
+- **Sign-in, or a small backend proxy** holding a token and a shared cache, to lift GitHub's rate limits: the production answer.
+- **Crash reporting, production performance monitoring and privacy-first analytics**, already planned in [ADR-0018](docs/adr/0018-error-model.md).
+- Localisation with an i18n library (the strings already live in one file), tablet layouts, a rendered README on Details, and over-the-air updates.
 
 ## Project conventions
 

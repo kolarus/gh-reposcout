@@ -66,7 +66,11 @@ export function OwnerCard({
         );
       case 'loading':
         return (
-          <View style={styles.lines} accessibilityLabel={copy.loading}>
+          <View
+            style={styles.lines}
+            accessible
+            accessibilityLabel={copy.loading}
+          >
             <Skeleton
               width="90%"
               height={theme.typography.body.lineHeight - 4}

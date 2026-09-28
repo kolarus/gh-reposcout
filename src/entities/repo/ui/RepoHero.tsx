@@ -55,7 +55,9 @@ export function RepoHero({ repo, onOpenUrl, avatarUri }: RepoHeroProps) {
         <View style={styles.link}>
           <Button
             label={hostOf(homepageUrl)}
-            accessibilityLabel={`${strings.repoDetails.homepage}: ${hostOf(homepageUrl)}`}
+            accessibilityLabel={strings.repoDetails.homepage(
+              hostOf(homepageUrl),
+            )}
             icon="link-external"
             variant="plain"
             onPress={() => {
@@ -67,7 +69,9 @@ export function RepoHero({ repo, onOpenUrl, avatarUri }: RepoHeroProps) {
       {repo.topics.length > 0 ? (
         <View
           style={styles.topics}
-          accessibilityLabel={`${strings.repoDetails.topicsLabel}: ${repo.topics.join(', ')}`}
+          // One element for the whole group: a label alone is ignored on iOS.
+          accessible
+          accessibilityLabel={strings.repoDetails.topics(repo.topics)}
         >
           {repo.topics.map(topic => (
             <Chip key={topic} label={topic} />

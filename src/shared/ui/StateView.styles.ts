@@ -9,10 +9,11 @@ export const useStyles = makeStyles(theme => ({
     paddingVertical: theme.spacing.xxxl,
     gap: theme.spacing.md,
   },
+  // Twice the icon it holds (`xl`).
   iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: theme.iconSize.xl * 2,
+    height: theme.iconSize.xl * 2,
+    borderRadius: theme.radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.surfaceMuted,

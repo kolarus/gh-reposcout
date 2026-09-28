@@ -1,6 +1,6 @@
 import { Image, View } from 'react-native';
 
-import { useTheme, type Theme } from '@/shared/theme';
+import type { Theme } from '@/shared/theme';
 
 import { useStyles } from './Avatar.styles';
 import { Text, type TextVariant } from './Text';
@@ -38,16 +38,11 @@ export function initialsOf(name: string): string {
  * copy even when the HTTP cache has expired (works offline).
  */
 export function Avatar({ uri, name, size = 'md' }: AvatarProps) {
-  const theme = useTheme();
   const styles = useStyles();
-  const px = theme.avatarSize[size];
 
   return (
     <View
-      style={[
-        styles.container,
-        { width: px, height: px, borderRadius: px / 2 },
-      ]}
+      style={[styles.container, styles[size]]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >

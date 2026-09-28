@@ -128,12 +128,14 @@ export const strings = {
     savedCopy: (relative: string) => `Saved copy · updated ${relative}`,
     gone: 'No longer available on GitHub. Showing your saved copy.',
     archived: 'This repository is archived and read-only.',
-    homepage: 'Website',
+    homepage: (host: string) => `Website: ${host}`,
     openOnGitHub: 'Open on GitHub',
     share: 'Share',
-    topicsLabel: 'Topics',
+    topics: (topics: readonly string[]) => `Topics: ${topics.join(', ')}`,
     stats: {
       title: 'Stats',
+      /** A stat tile, read as one: "Stars: 12,345". */
+      tile: (label: string, value: string) => `${label}: ${value}`,
       stars: 'Stars',
       forks: 'Forks',
       openIssues: 'Open issues',

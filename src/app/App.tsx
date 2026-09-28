@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { hide as hideSplash } from 'react-native-bootsplash';
 
+import { limitCachedSearches } from '@/features/search-repos';
 import { installGlobalErrorHandlers } from '@/shared/monitoring';
 import { useTheme } from '@/shared/theme';
 
@@ -36,6 +37,7 @@ export default function App() {
   // One client per app instance (not per render); tests get a fresh one each.
   const [queryClient] = useState(createQueryClient);
   useEffect(connectQueryManagers, []);
+  useEffect(() => limitCachedSearches(queryClient), [queryClient]);
 
   return (
     <AppProviders queryClient={queryClient}>

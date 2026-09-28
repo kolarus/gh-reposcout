@@ -3,6 +3,7 @@ export type { SearchSort } from './model/searchParams';
 export { reachedResultCap } from './model/searchResults';
 export type { SearchView } from './model/searchView';
 export { useRecentSearches } from './store/recentSearches';
+export { limitCachedSearches } from './queries/searchCacheLimit';
 export { useRepoSearch, type RepoSearch } from './queries/useRepoSearch';
 export { RateLimitBanner } from './ui/RateLimitBanner';
 export { ResultsHeader } from './ui/ResultsHeader';

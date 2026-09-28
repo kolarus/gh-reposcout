@@ -71,7 +71,7 @@ export function RepoStats({ repo, now }: { repo: RepoDetails; now: number }) {
           key={stat.label}
           style={styles.tile}
           accessible
-          accessibilityLabel={`${stat.label}: ${stat.value}`}
+          accessibilityLabel={copy.tile(stat.label, stat.value)}
         >
           <View style={styles.labelRow}>
             <Icon name={stat.icon} size="sm" tone="secondary" />

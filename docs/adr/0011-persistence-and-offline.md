@@ -34,6 +34,7 @@ Instances are created with v4's `createMMKV({ id })` in `shared/storage`. Values
 - `maxAge: 24h` (equal to `gcTime`, ADR-0007, so restored entries aren't collected at once).
 - `buster` = app version: a new version may change cached shapes, so it starts with an empty cache.
 - **Size is capped** when the cache is serialised: the 5 newest entries of each key group (`search`, `repo`, `owner`), and only the first page of a search. A search page holds 100 repos (about 65 KB), so the cache stays around 350 KB at most, and storage and restore stay small. One page also keeps a restored search refreshable: with more pages loaded a search never goes stale on its own (ADR-0012).
+- **Memory holds the same searches** (added in Phase 5): at most the 5 most recently loaded searches stay in memory; older ones nothing shows are evicted (`limitCachedSearches`, search feature). Without it, a day's `gcTime` kept every search, and one scrolled to its end holds 1,000 repos: memory grew about 6 MB per new deep search in the Phase 5 measurements (ADR-0017). An evicted search loads again when revisited.
 - Writes are throttled to one a second. A cache that can't be read is discarded by TanStack and logged (`monitoring`); the app starts empty.
 - **Settings → Clear cached results** removes the queries no screen is showing, and the persisted copy follows. What's on screen stays: removing it would only refetch it at once and spend rate limit (ADR-0012).
 

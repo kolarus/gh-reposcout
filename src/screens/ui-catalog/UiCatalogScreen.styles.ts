@@ -15,7 +15,7 @@ export const useStyles = makeStyles(theme => ({
   column: { gap: theme.spacing.sm },
   swatch: { width: '30%', gap: theme.spacing.xs },
   swatchColor: {
-    height: 40,
+    height: theme.touchTarget,
     borderRadius: theme.radii.md,
     borderWidth: 1,
     borderColor: theme.colors.border,

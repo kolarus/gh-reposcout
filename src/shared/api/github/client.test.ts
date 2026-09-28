@@ -141,6 +141,28 @@ describe('createGitHubClient', () => {
     );
   });
 
+  it('treats a secondary rate limit without headers as one: a minute, in the request’s bucket', async () => {
+    server.use(
+      http.get(`${BASE}/search/repositories`, () =>
+        HttpResponse.json(
+          {
+            message:
+              'You have exceeded a secondary rate limit. Please wait a few minutes before you try again.',
+          },
+          { status: 403 },
+        ),
+      ),
+    );
+
+    expect(
+      await detailOf(client.get('/search/repositories', repoSchema)),
+    ).toEqual({
+      kind: 'rate-limited',
+      resource: 'search',
+      resetAt: new Date(NOW + 60_000).toISOString(),
+    });
+  });
+
   it('reports an invalid search query (422) as validation with GitHub’s message', async () => {
     server.use(
       http.get(`${BASE}/search/repositories`, () =>
