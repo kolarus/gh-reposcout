@@ -8,6 +8,33 @@ A cross-platform (iOS + Android) GitHub repository explorer built with React Nat
 
 > 🚧 **Almost there.** The app is feature-complete and tested; the signed release (APK) and the final docs come next.
 
+## Download
+
+**[Latest release](https://github.com/kolarus/gh-reposcout/releases/latest)**: for a phone, take `RepoScout-<version>-arm64-v8a.apk`; the `universal` APK runs anywhere, emulators included. Android 7.0 or newer.
+
+<details>
+<summary>Verify the APK</summary>
+
+Every release is signed with the project's release key, built by [the release workflow](.github/workflows/android-release.yml) from the tagged commit ([ADR-0016](docs/adr/0016-ci-cd-and-release.md)). The signing certificate's SHA-256 fingerprint:
+
+```
+AD:4F:94:D0:06:54:F8:21:26:9A:E4:D1:AE:58:1C:37:5D:79:5C:72:D4:B2:AD:4A:AC:F1:6B:8C:3D:13:59:43
+```
+
+In the folder with the APK and `SHA256SUMS.txt` (the example uses the arm64 APK of 1.0.0):
+
+```sh
+# The file is the one the workflow published (Linux: sha256sum -c)
+grep arm64 SHA256SUMS.txt | shasum -a 256 -c
+# It was built by this repository's release workflow (GitHub CLI)
+gh attestation verify RepoScout-1.0.0-arm64-v8a.apk --repo kolarus/gh-reposcout
+# It's signed with the key above (apksigner, Android SDK build-tools):
+# expect "certificate SHA-256 digest: ad4f94d00654f821269ae4d1ae581c375d795c72d4b2ad4aacf16b8c3d135943"
+apksigner verify --print-certs RepoScout-1.0.0-arm64-v8a.apk | grep SHA-256
+```
+
+</details>
+
 ## Features
 
 | Search as you type                                                                          | Details                                                                                      | Saved for offline                                                                            | Dark mode                                                                             |
@@ -209,6 +236,10 @@ Left out on purpose, each with the reason. Everything below was weighed in a bac
 - **Sign-in, or a small backend proxy** holding a token and a shared cache, to lift GitHub's rate limits: the production answer.
 - **Crash reporting, production performance monitoring and privacy-first analytics**, already planned in [ADR-0018](docs/adr/0018-error-model.md).
 - Localisation with an i18n library (the strings already live in one file), tablet layouts, a rendered README on Details, and over-the-air updates.
+
+## How this was built
+
+Planned in phases, decisions recorded as ADRs before code, enforced by tooling, and each phase closed by automated and manual checks. Built with an AI pair programmer (Claude Code), with the owner deciding, reviewing every phase and committing every change. The one-page story, with examples of what the checks caught: [docs/process.md](docs/process.md).
 
 ## Project conventions
 
