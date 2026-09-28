@@ -140,6 +140,18 @@ All decisions are recorded as [Architecture Decision Records](docs/adr/README.md
 | GitHub limits  | No auth, no secrets; rate limits handled in the UX                  | [ADR-0012](docs/adr/0012-rate-limits-no-auth.md)                                                                                  |
 | Testing        | Jest + React Native Testing Library + MSW; Maestro end-to-end       | [ADR-0013](docs/adr/0013-testing-strategy.md)                                                                                     |
 
+## Built to scale
+
+The brief's goal is an app that scales to millions of users. What that asks of this app, and where it's handled:
+
+- **Many engineers on one codebase:** feature slices with one-way imports, checked by lint on every commit, and decisions recorded as ADRs. [AGENTS.md](AGENTS.md) and project skills hold AI contributors to the same rules ([ADR-0005](docs/adr/0005-layered-feature-sliced-structure.md), [ADR-0022](docs/adr/0022-architecture-enforcement.md)).
+- **Every kind of device and network:** every API response is validated, every screen has its loading, empty, error and offline states, one broken screen can't take the app down, and the last results and saved repositories work offline ([ADR-0008](docs/adr/0008-api-client-and-validation.md), [ADR-0018](docs/adr/0018-error-model.md), [ADR-0020](docs/adr/0020-saved-repos-offline-snapshots.md)).
+- **Low-end phones:** recycled list rows, avatars sized for the screen, bounded memory, the React Compiler and screens loaded on first use, measured on release builds (see Performance).
+- **Millions of users against one API:** GitHub's per-IP limits are fine for one person. At scale the app would go through a small backend with a token and a shared cache; the client already backs off and resumes on rate limits, and builds its request headers in one place, where sign-in slots in ([ADR-0012](docs/adr/0012-rate-limits-no-auth.md)).
+- **Seeing production:** errors go through one monitoring interface with global handlers, ready for Sentry and production performance monitoring ([ADR-0018](docs/adr/0018-error-model.md)).
+- **Shipping safely:** CI on every push, and signed, verifiable releases whose version comes from one place ([ADR-0016](docs/adr/0016-ci-cd-and-release.md)).
+- **Reaching more people:** every user-facing string in one file, ready for localisation, and a role and a label on every control ([ADR-0019](docs/adr/0019-strings-and-formatting.md), [ADR-0023](docs/adr/0023-platform-baseline.md)).
+
 ## Performance
 
 Measured on the **release build** on the dedicated Android emulator, by a script anyone can re-run: `yarn perf:android` ([ADR-0017](docs/adr/0017-performance-measurement.md)). Emulator numbers are relative evidence, not a claim about a particular phone (see the caveats below).
@@ -163,7 +175,7 @@ Supporting evidence:
   | Clear the field, type "react native" again                    | none: cached                                                         |
   | Open the first result                                         | 1, the owner's profile (the repository comes from the search result) |
 
-- **Size:** release APK for arm64 20.5 MB; JS bundle (Hermes bytecode) 2.3 MB.
+- **Size:** the published APKs are 20.6 MB (arm64) and 64.1 MB (universal); the JS bundle (Hermes bytecode) is 2.3 MB.
 - **iOS:** not measured. The simulator runs the app on the Mac's CPU and GPU, so its numbers would describe the Mac, and Apple's tools for scroll hitches and launch phases only work on a device. Profiling a release build on a real iPhone (Instruments "App Launch" and "Animation Hitches") takes more time than this project had; it's entirely doable with the same method, and it's on the list of improvements.
 
 **What keeps it fast**
@@ -266,6 +278,7 @@ Planned in phases, decisions recorded as ADRs before code, enforced by tooling, 
 ## Project conventions
 
 - Agents (and humans) start at [AGENTS.md](AGENTS.md).
+- Code is commented where it helps: TSDoc on every slice's public API, and comments that explain _why_ wherever the code alone wouldn't (about one line in nine).
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org), checked by commitlint; `yarn validate` runs before every push ([ADR-0024](docs/adr/0024-contribution-workflow.md)).
 
 ---
