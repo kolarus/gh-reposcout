@@ -72,6 +72,13 @@ ios_start() {
 }
 
 ios_install() {
+  # `yarn ios` installs CocoaPods by itself, but this calls xcodebuild
+  # directly, and a fresh clone has no Pods yet. The same check as CocoaPods'
+  # own build phase: the lockfiles must match.
+  if ! cmp -s "$ROOT/ios/Podfile.lock" "$ROOT/ios/Pods/Manifest.lock"; then
+    echo "▶ Installing CocoaPods…"
+    (cd "$ROOT" && yarn pods)
+  fi
   echo "▶ Building the release app for the simulator…"
   xcodebuild -quiet -workspace "$ROOT/ios/RepoScout.xcworkspace" \
     -scheme RepoScout -configuration Release -sdk iphonesimulator \

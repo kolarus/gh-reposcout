@@ -201,7 +201,7 @@ Two layers: fast unit and integration tests on every push, and end-to-end flows 
 
 ### Unit and integration (Jest)
 
-**299 tests, 95% of statements and 86% of branches covered** (`yarn test --coverage`), run by `yarn validate` before every push and in CI. They use React Native Testing Library and MSW, so screens are tested the way a user sees them, against a fake GitHub API:
+**300 tests, 95% of statements and 86% of branches covered** (`yarn test --coverage`), run by `yarn validate` before every push and in CI. They use React Native Testing Library and MSW, so screens are tested the way a user sees them, against a fake GitHub API:
 
 - **Every screen state**: loading, results, empty, error by kind, offline, rate-limited, and a saved copy standing in.
 - **The API client**: rate limits (including GitHub's secondary limits), timeouts, cancellation, and validation of every response.

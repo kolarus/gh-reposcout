@@ -17,6 +17,12 @@ import { useRecentSearches } from '../store/recentSearches';
 
 /** Extra wait after a rate-limit reset, so clock skew doesn't hit the limit again. */
 const LIMIT_RESET_GRACE_MS = 1000;
+/**
+ * Still limited after the reset time has passed here: this device's clock
+ * runs ahead of GitHub's. The next try waits this long, so the search neither
+ * stalls nor retries in a burst.
+ */
+const LIMIT_SKEWED_RETRY_MS = 5000;
 
 export interface RepoSearch {
   /** The normalised search in effect; `undefined` while idle. */
@@ -85,18 +91,22 @@ export function useRepoSearch(text: string, sort: SearchSort): RepoSearch {
   };
 
   // Rate-limited requests are never retried by the query client (ADR-0018);
-  // this resumes the search once GitHub's reset time has passed.
+  // this resumes the search once GitHub's reset time has passed, and again
+  // after each try that's still limited: "load more" keeps its error while it
+  // retries, so the reset time alone may not change.
   const resumeAfterLimit = useEffectEvent(retry);
+  const errorUpdatedAt = query.errorUpdatedAt;
   useEffect(() => {
     if (errorResetAt === undefined) return;
+    const skewed = errorUpdatedAt >= Date.parse(errorResetAt);
     return runAt(
       errorResetAt,
       () => {
         resumeAfterLimit();
       },
-      LIMIT_RESET_GRACE_MS,
+      skewed ? LIMIT_SKEWED_RETRY_MS : LIMIT_RESET_GRACE_MS,
     );
-  }, [errorResetAt]);
+  }, [errorResetAt, errorUpdatedAt]);
 
   const view = resolveSearchView({
     query: params?.query,

@@ -60,6 +60,21 @@ function serveSearch(total: number) {
   return requests;
 }
 
+/** GitHub's answer once the search budget is spent, until `resetEpoch` (s). */
+const searchLimited = (resetEpoch: number) =>
+  HttpResponse.json(
+    {},
+    {
+      status: 403,
+      headers: {
+        'x-ratelimit-limit': '10',
+        'x-ratelimit-remaining': '0',
+        'x-ratelimit-reset': String(resetEpoch),
+        'x-ratelimit-resource': 'search',
+      },
+    },
+  );
+
 beforeEach(() => {
   useRateLimit.setState({ buckets: {} });
   useRecentSearches.getState().clear();
@@ -298,20 +313,7 @@ describe('useRepoSearch', () => {
     server.use(
       http.get(SEARCH_URL, ({ request }) => {
         requests.push(request.url);
-        if (limited) {
-          return HttpResponse.json(
-            {},
-            {
-              status: 403,
-              headers: {
-                'x-ratelimit-limit': '10',
-                'x-ratelimit-remaining': '0',
-                'x-ratelimit-reset': String(resetEpoch),
-                'x-ratelimit-resource': 'search',
-              },
-            },
-          );
-        }
+        if (limited) return searchLimited(resetEpoch);
         return HttpResponse.json(buildSearchPage({ page: 1, total: 4 }));
       }),
     );
@@ -338,6 +340,59 @@ describe('useRepoSearch', () => {
     });
     await waitForResults();
     expect(requests).toHaveLength(2);
+  });
+
+  it('keeps resuming "load more" when the first try after the reset is still limited', async () => {
+    jest.useFakeTimers({ now: Date.parse('2026-09-26T12:00:00Z') });
+    const resetEpoch = Math.floor(Date.now() / 1000) + 30;
+    const pageTwo: string[] = [];
+    server.use(
+      http.get(SEARCH_URL, ({ request }) => {
+        const page = Number(new URL(request.url).searchParams.get('page'));
+        if (page === 2) {
+          pageTwo.push(request.url);
+          // This device's clock runs ahead of GitHub's: the first try after
+          // the reset still lands in the old window, with the same reset time.
+          if (pageTwo.length <= 2) return searchLimited(resetEpoch);
+        }
+        return HttpResponse.json(buildSearchPage({ page, total: 300 }));
+      }),
+    );
+    const { result, searchNow, waitForResults, repoIds } = await setup();
+    await searchNow('react');
+    await waitForResults();
+    await act(() => {
+      result.current.loadMore();
+    });
+    await waitFor(() => {
+      expect(result.current.nextPageError?.kind).toBe('rate-limited');
+    });
+
+    await act(() => {
+      jest.advanceTimersByTime(32_000);
+    });
+    await waitFor(() => {
+      expect(pageTwo).toHaveLength(2);
+    });
+    await waitFor(() => {
+      expect(result.current.isFetchingNextPage).toBe(false);
+    });
+    expect(result.current.nextPageError?.kind).toBe('rate-limited');
+
+    // Still limited after the reset: it tries again a few seconds later, not
+    // at once (a burst) and not never (a stalled list).
+    await act(() => {
+      jest.advanceTimersByTime(4_000);
+    });
+    expect(pageTwo).toHaveLength(2);
+    await waitFor(
+      () => {
+        expect(repoIds()).toHaveLength(200);
+      },
+      { timeout: 5_000 },
+    );
+    expect(pageTwo).toHaveLength(3);
+    expect(result.current.nextPageError).toBeUndefined();
   });
 
   it('keeps loaded results when "load more" fails, and retries that page', async () => {
