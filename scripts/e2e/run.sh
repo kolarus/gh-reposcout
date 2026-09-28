@@ -45,41 +45,15 @@ mkdir -p "$OUT"
 # ---------------------------------------------------------------- Android --
 
 android_start() {
-  if ! "$SDK/emulator/emulator" -list-avds | grep -qx "$AVD_NAME"; then
-    echo "No $AVD_NAME emulator: run yarn e2e:setup first." >&2
-    exit 1
-  fi
-  local window=(-no-window)
-  if $HEADED; then window=(); fi
-  echo "▶ Booting $AVD_NAME ($ANDROID_SERIAL)…"
-  "$SDK/emulator/emulator" -avd "$AVD_NAME" -port "$ANDROID_PORT" \
-    ${window[@]+"${window[@]}"} -no-audio -no-boot-anim -no-snapshot-save \
-    >"$OUT/emulator.log" 2>&1 &
-  adb -s "$ANDROID_SERIAL" wait-for-device
-  # Polling a device, not a test: nothing else says when boot has finished.
-  until [[ "$(adb -s "$ANDROID_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; do
-    sleep 2
-  done
+  android_boot "$OUT/emulator.log" "$HEADED"
   # Animations off for steadier runs on this dedicated device, on for the
-  # recordings. Set both ways: the emulator keeps the last run's setting.
-  local scale=0
-  if $RECORD; then scale=1; fi
-  for key in window_animation_scale transition_animation_scale animator_duration_scale; do
-    adb -s "$ANDROID_SERIAL" shell settings put global "$key" "$scale"
-  done
+  # recordings.
+  if $RECORD; then android_animations 1; else android_animations 0; fi
 }
 
-android_install() {
-  echo "▶ Building the release APK ($ANDROID_ABI)…"
-  (cd "$ROOT/android" && ./gradlew app:assembleRelease -q \
-    -PreactNativeArchitectures="$ANDROID_ABI")
-  adb -s "$ANDROID_SERIAL" install -r \
-    "$ROOT/android/app/build/outputs/apk/release/app-release.apk" >/dev/null
-}
+android_install() { android_install_release; }
 
-android_stop() {
-  adb -s "$ANDROID_SERIAL" emu kill >/dev/null 2>&1 || true
-}
+android_stop() { android_shutdown; }
 
 # -------------------------------------------------------------------- iOS --
 

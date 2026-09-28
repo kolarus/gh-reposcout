@@ -1,0 +1,8 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Release only: lets the Android Studio profilers and Perfetto attach to
+       the build we measure (ADR-0017). Unlike debuggable, it adds no debugging
+       features and doesn't change how the app runs. -->
+  <application>
+    <profileable android:shell="true" />
+  </application>
+</manifest>

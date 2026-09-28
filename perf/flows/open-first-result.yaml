@@ -1,0 +1,13 @@
+# Opens the first search result, waits until Details has loaded the owner's
+# profile (the followers line, below the fold), and goes back to the results.
+appId: com.bohdanmorozov.reposcout
+---
+- tapOn:
+    text: '[^,]+/[^,]+, .* stars, .*'
+    index: 0
+- scrollUntilVisible:
+    element: '.* followers · .* public repositories'
+    direction: DOWN
+    timeout: 15000
+- back
+- assertVisible: '[0-9,]+ repositories'

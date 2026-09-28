@@ -1,0 +1,8 @@
+# Clears the search field and searches ${QUERY} again.
+appId: com.bohdanmorozov.reposcout
+---
+- tapOn: 'Clear search'
+- runFlow:
+    file: ../../e2e/flows/subflows/search.yaml
+    env:
+      QUERY: ${QUERY}

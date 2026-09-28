@@ -1,0 +1,10 @@
+# `yarn perf:android` (ADR-0017): a fresh app that has searched ${QUERY}, with
+# the first page of results on screen and the keyboard down.
+appId: com.bohdanmorozov.reposcout
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    file: ../../e2e/flows/subflows/search.yaml
+    env:
+      QUERY: ${QUERY}

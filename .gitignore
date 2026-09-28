@@ -83,6 +83,9 @@ yarn-error.log
 # E2E artifacts
 e2e/artifacts/
 
+# Performance measurements (scripts/perf, ADR-0017)
+perf/artifacts/
+
 # Local env
 .env
 .env.*

@@ -18,4 +18,10 @@ module.exports = {
       },
     ],
   ],
+  env: {
+    // Jest runs CommonJS: turn the lazily loaded screens' import() into
+    // require(), so tests can open them through the real navigator. Metro
+    // handles import() itself in the app.
+    test: { plugins: ['@babel/plugin-transform-dynamic-import'] },
+  },
 };
