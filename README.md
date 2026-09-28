@@ -10,8 +10,6 @@ A cross-platform (iOS + Android) GitHub repository explorer built with React Nat
   <img src="docs/media/demo.gif" width="300" alt="RepoScout on Android: searching for react native, opening a repository and saving it, the Saved tab, and dark mode">
 </p>
 
-> 🚧 **Almost there.** The app is feature-complete and tested; the signed release (APK) and the final docs come next.
-
 ## Download
 
 **[Latest release](https://github.com/kolarus/gh-reposcout/releases/latest)**: for a phone, take `RepoScout-<version>-arm64-v8a.apk`; the `universal` APK runs anywhere, emulators included. Android 7.0 or newer.
