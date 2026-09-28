@@ -5,6 +5,12 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# `yarn ios` (Community CLI 20) installs pods with RCT_IGNORE_PODS_DEPRECATION=1,
+# which makes React Native 0.87 skip codegen, expecting the CLI to have run it.
+# This CLI doesn't, so on a fresh clone the generated pods would be missing:
+# keep codegen in `pod install`.
+ENV.delete('RCT_IGNORE_PODS_DEPRECATION')
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
